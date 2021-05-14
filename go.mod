@@ -1,3 +1,3 @@
-module github.com/ozoncp/ocp-classroom-api
+module main
 
 go 1.16
