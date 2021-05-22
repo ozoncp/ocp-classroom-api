@@ -18,13 +18,32 @@ func TestSplitSliceToChunks(t *testing.T) {
 	}
 
 	var testCases = [...]testCase{
+
+		{
+			in: inData{
+				slice:     nil,
+				chunkSize: 3,
+			},
+
+			want: nil,
+		},
+
+		{
+			in: inData{
+				slice:     nil,
+				chunkSize: 0,
+			},
+
+			want: nil,
+		},
+
 		{
 			in: inData{
 				slice:     []int{},
 				chunkSize: 3,
 			},
 
-			want: nil,
+			want: [][]int{},
 		},
 
 		{

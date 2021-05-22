@@ -2,9 +2,11 @@ package utils
 
 func SplitSliceToChunks(src []int, chunkSize int) (dst [][]int) {
 
-	if chunkSize <= 0 {
+	if src == nil || chunkSize <= 0 {
 		return
 	}
+
+	dst = [][]int{}
 
 	sliceLen := len(src)
 
@@ -24,8 +26,4 @@ func SplitSliceToChunks(src []int, chunkSize int) (dst [][]int) {
 	}
 
 	return
-}
-
-func ExampleSplitSliceToChunks() {
-
 }
