@@ -8,9 +8,7 @@ func SplitSlice(src []int, chunkSize int) (dst [][]int) {
 
 	dst = [][]int{}
 
-	sliceLen := len(src)
-
-	for i := 0; i < sliceLen/chunkSize; i++ {
+	for i := 0; i < len(src)/chunkSize; i++ {
 
 		begin := 0 + chunkSize*i
 		end := chunkSize + chunkSize*i
@@ -18,11 +16,11 @@ func SplitSlice(src []int, chunkSize int) (dst [][]int) {
 		dst = append(dst, src[begin:end])
 	}
 
-	left := sliceLen % chunkSize
+	left := len(src) % chunkSize
 
 	if left > 0 {
 
-		dst = append(dst, src[sliceLen-left:])
+		dst = append(dst, src[len(src)-left:])
 	}
 
 	return
