@@ -6,7 +6,7 @@ func ReverseMap(src map[int]string) (dst map[string]int) {
 		return
 	}
 
-	dst = make(map[string]int)
+	dst = map[string]int{}
 
 	for key, value := range src {
 
