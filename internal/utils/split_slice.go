@@ -1,6 +1,6 @@
 package utils
 
-func SplitSliceToChunks(src []int, chunkSize int) (dst [][]int) {
+func SplitSlice(src []int, chunkSize int) (dst [][]int) {
 
 	if src == nil || chunkSize <= 0 {
 		return

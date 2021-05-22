@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSplitSliceToChunks(t *testing.T) {
+func TestSplitSlice(t *testing.T) {
 
 	type inData struct {
 		slice     []int
@@ -103,7 +103,7 @@ func TestSplitSliceToChunks(t *testing.T) {
 
 	for _, testCase := range testCases {
 
-		got := SplitSliceToChunks(testCase.in.slice, testCase.in.chunkSize)
+		got := SplitSlice(testCase.in.slice, testCase.in.chunkSize)
 
 		if !reflect.DeepEqual(testCase.want, got) {
 			t.Errorf("want: %v, got : %v.", testCase.want, got)
