@@ -38,21 +38,6 @@ func TestReverseMap(t *testing.T) {
 				"three": 3,
 			},
 		},
-
-		// Здесь не уверен!
-		// Я так понимаю, что результат же может быть разным из-за unordered свойства map? :C
-		// Помогите 🐱
-		{
-			in: map[int]string{
-				1: "Im'confused",
-				2: "Im'confused",
-				3: "Im'confused",
-			},
-
-			want: map[string]int{
-				"Im'confused": 3,
-			},
-		},
 	}
 
 	for _, testCase := range testCases {
