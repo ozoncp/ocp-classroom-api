@@ -38,7 +38,22 @@ func TestReverseMap(t *testing.T) {
 				"three": 3,
 			},
 		},
+
+		// panic test
+		{
+			in: map[int]string{
+				1: "wait for panic",
+				2: "wait for panic",
+				3: "wait for panic",
+			},
+
+			want: map[string]int{
+				"wait for panic": 1,
+			},
+		},
 	}
+
+	defer func() { recover() }()
 
 	for _, testCase := range testCases {
 		got := ReverseMap(testCase.in)
