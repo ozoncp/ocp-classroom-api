@@ -3,18 +3,20 @@ package utils
 import (
 	"reflect"
 	"testing"
+
+	"github.com/ozoncp/ocp-classroom-api/internal/models"
 )
 
 func TestSplitSlice(t *testing.T) {
 
 	type inData struct {
-		slice     []int
+		slice     []models.Classroom
 		chunkSize int
 	}
 
 	type testCase struct {
 		in   inData
-		want [][]int
+		want [][]models.Classroom
 	}
 
 	var testCases = [...]testCase{
@@ -39,16 +41,21 @@ func TestSplitSlice(t *testing.T) {
 
 		{
 			in: inData{
-				slice:     []int{},
+				slice:     []models.Classroom{},
 				chunkSize: 3,
 			},
 
-			want: [][]int{},
+			want: [][]models.Classroom{},
 		},
 
 		{
 			in: inData{
-				slice:     []int{0, 1, 2, 4},
+				slice: []models.Classroom{
+					models.New(0, nil, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+					models.New(3, nil, nil),
+				},
 				chunkSize: -1,
 			},
 
@@ -57,7 +64,12 @@ func TestSplitSlice(t *testing.T) {
 
 		{
 			in: inData{
-				slice:     []int{0, 1, 2, 4},
+				slice: []models.Classroom{
+					models.New(0, nil, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+					models.New(3, nil, nil),
+				},
 				chunkSize: 0,
 			},
 
@@ -66,37 +78,81 @@ func TestSplitSlice(t *testing.T) {
 
 		{
 			in: inData{
-				slice:     []int{0, 1, 2, 3, 4, 5},
+				slice: []models.Classroom{
+					models.New(0, nil, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+					models.New(3, nil, nil),
+					models.New(4, nil, nil),
+					models.New(5, nil, nil),
+				},
 				chunkSize: 3,
 			},
 
-			want: [][]int{
-				{0, 1, 2},
-				{3, 4, 5},
+			want: [][]models.Classroom{
+				{
+					models.New(0, nil, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+				},
+
+				{
+					models.New(3, nil, nil),
+					models.New(4, nil, nil),
+					models.New(5, nil, nil),
+				},
 			},
 		},
 
 		{
 			in: inData{
-				slice:     []int{0, 1, 2, 3, 4, 5, 6, 7},
+				slice: []models.Classroom{
+					models.New(0, nil, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+					models.New(3, nil, nil),
+					models.New(4, nil, nil),
+					models.New(5, nil, nil),
+					models.New(6, nil, nil),
+				},
 				chunkSize: 3,
 			},
 
-			want: [][]int{
-				{0, 1, 2},
-				{3, 4, 5},
-				{6, 7},
+			want: [][]models.Classroom{
+				{
+					models.New(0, nil, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+				},
+
+				{
+					models.New(3, nil, nil),
+					models.New(4, nil, nil),
+					models.New(5, nil, nil),
+				},
+
+				{
+					models.New(6, nil, nil),
+				},
 			},
 		},
 
 		{
 			in: inData{
-				slice:     []int{0, 1, 2, 3, 4, 5, 6, 7},
-				chunkSize: 10,
+				slice: []models.Classroom{
+					models.New(0, []uint{1, 2}, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+				},
+				chunkSize: 5,
 			},
 
-			want: [][]int{
-				{0, 1, 2, 3, 4, 5, 6, 7},
+			want: [][]models.Classroom{
+				{
+					models.New(0, []uint{1, 2}, nil),
+					models.New(1, nil, nil),
+					models.New(2, nil, nil),
+				},
 			},
 		},
 	}

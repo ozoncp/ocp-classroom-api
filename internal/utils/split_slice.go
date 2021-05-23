@@ -1,12 +1,14 @@
 package utils
 
-func SplitSlice(src []int, chunkSize int) (dst [][]int) {
+import "github.com/ozoncp/ocp-classroom-api/internal/models"
+
+func SplitSlice(src []models.Classroom, chunkSize int) (dst [][]models.Classroom) {
 
 	if src == nil || chunkSize <= 0 {
 		return
 	}
 
-	dst = [][]int{}
+	dst = [][]models.Classroom{}
 
 	for i := 0; i < len(src)/chunkSize; i++ {
 
