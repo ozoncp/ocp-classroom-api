@@ -13,7 +13,11 @@ func SliceToMap(src []models.Classroom) (dst map[uint]models.Classroom, err erro
 		return
 	}
 
-	dst = make(map[uint]models.Classroom)
+	if len(src) == 0 {
+		return
+	}
+
+	dst = make(map[uint]models.Classroom, len(src))
 
 	for _, value := range src {
 

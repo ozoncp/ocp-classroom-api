@@ -1,8 +1,20 @@
 package utils
 
-func FilterSlice(src []int, keys []int) (dst []int) {
+import "errors"
 
-	if src == nil || keys == nil {
+func FilterSlice(src []int, keys []int) (dst []int, err error) {
+
+	if src == nil {
+		err = errors.New("src is nil")
+		return
+	}
+
+	if keys == nil {
+		err = errors.New("keys is nil")
+		return
+	}
+
+	if len(src) == 0 {
 		return
 	}
 
@@ -11,8 +23,6 @@ func FilterSlice(src []int, keys []int) (dst []int) {
 	for _, key := range keys {
 		filter[key] = struct{}{}
 	}
-
-	dst = []int{}
 
 	for i := 0; i < len(src); i++ {
 

@@ -1,14 +1,22 @@
 package utils
 
-import "github.com/ozoncp/ocp-classroom-api/internal/models"
+import (
+	"errors"
 
-func SplitSlice(src []models.Classroom, chunkSize int) (dst [][]models.Classroom) {
+	"github.com/ozoncp/ocp-classroom-api/internal/models"
+)
 
-	if src == nil || chunkSize <= 0 {
+func SplitSlice(src []models.Classroom, chunkSize int) (dst [][]models.Classroom, err error) {
+
+	if src == nil {
+		err = errors.New("src is nil")
 		return
 	}
 
-	dst = [][]models.Classroom{}
+	if chunkSize <= 0 {
+		err = errors.New("chunkSize <= 0")
+		return
+	}
 
 	for i := 0; i < len(src)/chunkSize; i++ {
 

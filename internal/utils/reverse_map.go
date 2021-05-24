@@ -1,17 +1,25 @@
 package utils
 
-func ReverseMap(src map[int]string) (dst map[string]int) {
+import "errors"
+
+func ReverseMap(src map[int]string) (dst map[string]int, err error) {
 
 	if src == nil {
+		err = errors.New("src is nil")
 		return
 	}
 
-	dst = map[string]int{}
+	if len(src) == 0 {
+		return
+	}
+
+	dst = make(map[string]int, len(src))
 
 	for key, value := range src {
 
 		if _, found := dst[value]; found {
-			panic("key is already present")
+			err = errors.New("key is already present")
+			return
 		}
 
 		dst[value] = key

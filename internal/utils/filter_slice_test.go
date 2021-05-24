@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -12,9 +13,14 @@ func TestFilterSlice(t *testing.T) {
 		keys []int
 	}
 
+	type outData struct {
+		dst []int
+		err error
+	}
+
 	type testCase struct {
 		in   inData
-		want []int
+		want outData
 	}
 
 	var testCases = [...]testCase{
@@ -24,7 +30,10 @@ func TestFilterSlice(t *testing.T) {
 				keys: nil,
 			},
 
-			want: nil,
+			want: outData{
+				nil,
+				errors.New("src is nil"),
+			},
 		},
 
 		{
@@ -33,16 +42,10 @@ func TestFilterSlice(t *testing.T) {
 				keys: nil,
 			},
 
-			want: nil,
-		},
-
-		{
-			in: inData{
-				src:  nil,
-				keys: []int{},
+			want: outData{
+				nil,
+				errors.New("keys is nil"),
 			},
-
-			want: nil,
 		},
 
 		{
@@ -51,7 +54,10 @@ func TestFilterSlice(t *testing.T) {
 				keys: []int{},
 			},
 
-			want: []int{},
+			want: outData{
+				nil,
+				nil,
+			},
 		},
 
 		{
@@ -60,7 +66,10 @@ func TestFilterSlice(t *testing.T) {
 				keys: []int{},
 			},
 
-			want: []int{1, 2, 3, 4, 5, 6},
+			want: outData{
+				[]int{1, 2, 3, 4, 5, 6},
+				nil,
+			},
 		},
 
 		{
@@ -69,7 +78,10 @@ func TestFilterSlice(t *testing.T) {
 				keys: []int{1, 2, 3},
 			},
 
-			want: []int{4, 5, 6},
+			want: outData{
+				[]int{4, 5, 6},
+				nil,
+			},
 		},
 
 		{
@@ -78,7 +90,10 @@ func TestFilterSlice(t *testing.T) {
 				keys: []int{1, 2, 3},
 			},
 
-			want: []int{4, 5, 6},
+			want: outData{
+				[]int{4, 5, 6},
+				nil,
+			},
 		},
 
 		{
@@ -87,15 +102,23 @@ func TestFilterSlice(t *testing.T) {
 				keys: []int{1, 2, 3},
 			},
 
-			want: []int{},
+			want: outData{
+				nil,
+				nil,
+			},
 		},
 	}
 
-	for _, testCase := range testCases {
-		got := FilterSlice(testCase.in.src, testCase.in.keys)
+	for i, testCase := range testCases {
 
-		if !reflect.DeepEqual(testCase.want, got) {
-			t.Errorf("want: %v, got : %v.", testCase.want, got)
+		var got outData
+		got.dst, got.err = FilterSlice(testCase.in.src, testCase.in.keys)
+
+		if !reflect.DeepEqual(testCase.want.dst, got.dst) ||
+			(testCase.want.err != nil && got.err == nil) ||
+			(testCase.want.err == nil && got.err != nil) {
+
+			t.Errorf("test[%v]: want: %v, got : %v.", i, testCase.want, got)
 		}
 	}
 }

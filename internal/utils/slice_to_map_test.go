@@ -48,7 +48,7 @@ func TestSliceToMap(t *testing.T) {
 			in: []models.Classroom{},
 
 			want: outData{
-				map[uint]models.Classroom{},
+				nil,
 				nil,
 			},
 		},
@@ -71,7 +71,7 @@ func TestSliceToMap(t *testing.T) {
 
 	defer func() { recover() }()
 
-	for _, testCase := range testCases {
+	for i, testCase := range testCases {
 
 		var got outData
 		got.dst, got.err = SliceToMap(testCase.in)
@@ -80,7 +80,7 @@ func TestSliceToMap(t *testing.T) {
 			(testCase.want.err != nil && got.err == nil) ||
 			(testCase.want.err == nil && got.err != nil) {
 
-			t.Errorf("want: %v, got : %v.", testCase.want, got)
+			t.Errorf("test[%v]: want: %v, got : %v.", i, testCase.want, got)
 		}
 	}
 }

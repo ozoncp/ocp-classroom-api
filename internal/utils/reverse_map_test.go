@@ -1,28 +1,40 @@
 package utils
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
 
 func TestReverseMap(t *testing.T) {
 
+	type outData struct {
+		dst map[string]int
+		err error
+	}
+
 	type testCase struct {
 		in   map[int]string
-		want map[string]int
+		want outData
 	}
 
 	var testCases = [...]testCase{
 		{
 			in: nil,
 
-			want: nil,
+			want: outData{
+				nil,
+				errors.New("src is nil"),
+			},
 		},
 
 		{
 			in: map[int]string{},
 
-			want: map[string]int{},
+			want: outData{
+				nil,
+				nil,
+			},
 		},
 
 		{
@@ -32,34 +44,42 @@ func TestReverseMap(t *testing.T) {
 				3: "three",
 			},
 
-			want: map[string]int{
-				"one":   1,
-				"two":   2,
-				"three": 3,
+			want: outData{
+				map[string]int{
+					"one":   1,
+					"two":   2,
+					"three": 3,
+				},
+				nil,
 			},
 		},
 
-		// panic test
 		{
 			in: map[int]string{
-				1: "wait for panic",
-				2: "wait for panic",
-				3: "wait for panic",
+				1: "wait for error",
+				2: "wait for error",
+				3: "wait for error",
 			},
 
-			want: map[string]int{
-				"wait for panic": 1,
+			want: outData{
+				map[string]int{
+					"wait for error": 1,
+				},
+				errors.New("key is already present"),
 			},
 		},
 	}
 
-	defer func() { recover() }()
+	for i, testCase := range testCases {
 
-	for _, testCase := range testCases {
-		got := ReverseMap(testCase.in)
+		var got outData
+		got.dst, got.err = ReverseMap(testCase.in)
 
-		if !reflect.DeepEqual(testCase.want, got) {
-			t.Errorf("want: %v, got : %v.", testCase.want, got)
+		if !reflect.DeepEqual(testCase.want.dst, got.dst) ||
+			(testCase.want.err != nil && got.err == nil) ||
+			(testCase.want.err == nil && got.err != nil) {
+
+			t.Errorf("test[%v]: want: %v, got : %v.", i, testCase.want, got)
 		}
 	}
 }

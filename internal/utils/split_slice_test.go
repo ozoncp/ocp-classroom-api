@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -10,47 +11,49 @@ import (
 func TestSplitSlice(t *testing.T) {
 
 	type inData struct {
-		slice     []models.Classroom
+		src       []models.Classroom
 		chunkSize int
+	}
+
+	type outData struct {
+		dst [][]models.Classroom
+		err error
 	}
 
 	type testCase struct {
 		in   inData
-		want [][]models.Classroom
+		want outData
 	}
 
 	var testCases = [...]testCase{
 
 		{
 			in: inData{
-				slice:     nil,
+				src:       nil,
 				chunkSize: 3,
 			},
 
-			want: nil,
-		},
-
-		{
-			in: inData{
-				slice:     nil,
-				chunkSize: 0,
+			want: outData{
+				dst: nil,
+				err: errors.New("src is nil"),
 			},
-
-			want: nil,
 		},
 
 		{
 			in: inData{
-				slice:     []models.Classroom{},
+				src:       []models.Classroom{},
 				chunkSize: 3,
 			},
 
-			want: [][]models.Classroom{},
+			want: outData{
+				dst: nil,
+				err: nil,
+			},
 		},
 
 		{
 			in: inData{
-				slice: []models.Classroom{
+				src: []models.Classroom{
 					models.New(0, nil, nil),
 					models.New(1, nil, nil),
 					models.New(2, nil, nil),
@@ -59,26 +62,15 @@ func TestSplitSlice(t *testing.T) {
 				chunkSize: -1,
 			},
 
-			want: nil,
-		},
-
-		{
-			in: inData{
-				slice: []models.Classroom{
-					models.New(0, nil, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
-					models.New(3, nil, nil),
-				},
-				chunkSize: 0,
+			want: outData{
+				dst: nil,
+				err: errors.New("chunkSize <= 0"),
 			},
-
-			want: nil,
 		},
 
 		{
 			in: inData{
-				slice: []models.Classroom{
+				src: []models.Classroom{
 					models.New(0, nil, nil),
 					models.New(1, nil, nil),
 					models.New(2, nil, nil),
@@ -89,24 +81,27 @@ func TestSplitSlice(t *testing.T) {
 				chunkSize: 3,
 			},
 
-			want: [][]models.Classroom{
-				{
-					models.New(0, nil, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
-				},
+			want: outData{
+				dst: [][]models.Classroom{
+					{
+						models.New(0, nil, nil),
+						models.New(1, nil, nil),
+						models.New(2, nil, nil),
+					},
 
-				{
-					models.New(3, nil, nil),
-					models.New(4, nil, nil),
-					models.New(5, nil, nil),
+					{
+						models.New(3, nil, nil),
+						models.New(4, nil, nil),
+						models.New(5, nil, nil),
+					},
 				},
+				err: nil,
 			},
 		},
 
 		{
 			in: inData{
-				slice: []models.Classroom{
+				src: []models.Classroom{
 					models.New(0, nil, nil),
 					models.New(1, nil, nil),
 					models.New(2, nil, nil),
@@ -118,28 +113,31 @@ func TestSplitSlice(t *testing.T) {
 				chunkSize: 3,
 			},
 
-			want: [][]models.Classroom{
-				{
-					models.New(0, nil, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
-				},
+			want: outData{
+				dst: [][]models.Classroom{
+					{
+						models.New(0, nil, nil),
+						models.New(1, nil, nil),
+						models.New(2, nil, nil),
+					},
 
-				{
-					models.New(3, nil, nil),
-					models.New(4, nil, nil),
-					models.New(5, nil, nil),
-				},
+					{
+						models.New(3, nil, nil),
+						models.New(4, nil, nil),
+						models.New(5, nil, nil),
+					},
 
-				{
-					models.New(6, nil, nil),
+					{
+						models.New(6, nil, nil),
+					},
 				},
+				err: nil,
 			},
 		},
 
 		{
 			in: inData{
-				slice: []models.Classroom{
+				src: []models.Classroom{
 					models.New(0, []uint{1, 2}, nil),
 					models.New(1, nil, nil),
 					models.New(2, nil, nil),
@@ -147,22 +145,29 @@ func TestSplitSlice(t *testing.T) {
 				chunkSize: 5,
 			},
 
-			want: [][]models.Classroom{
-				{
-					models.New(0, []uint{1, 2}, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
+			want: outData{
+				dst: [][]models.Classroom{
+					{
+						models.New(0, []uint{1, 2}, nil),
+						models.New(1, nil, nil),
+						models.New(2, nil, nil),
+					},
 				},
+				err: nil,
 			},
 		},
 	}
 
-	for _, testCase := range testCases {
+	for i, testCase := range testCases {
 
-		got := SplitSlice(testCase.in.slice, testCase.in.chunkSize)
+		var got outData
+		got.dst, got.err = SplitSlice(testCase.in.src, testCase.in.chunkSize)
 
-		if !reflect.DeepEqual(testCase.want, got) {
-			t.Errorf("want: %v, got : %v.", testCase.want, got)
+		if !reflect.DeepEqual(testCase.want.dst, got.dst) ||
+			(testCase.want.err != nil && got.err == nil) ||
+			(testCase.want.err == nil && got.err != nil) {
+
+			t.Errorf("test[%v]: want: %v, got : %v.", i, testCase.want, got)
 		}
 	}
 }
