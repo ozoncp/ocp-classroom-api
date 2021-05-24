@@ -54,10 +54,10 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, nil, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
-					models.New(3, nil, nil),
+					models.New(0, 0, 0),
+					models.New(1, 1, 1),
+					models.New(2, 2, 2),
+					models.New(3, 3, 3),
 				},
 				chunkSize: -1,
 			},
@@ -71,12 +71,12 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, nil, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
-					models.New(3, nil, nil),
-					models.New(4, nil, nil),
-					models.New(5, nil, nil),
+					models.New(0, 0, 0),
+					models.New(1, 1, 1),
+					models.New(2, 2, 2),
+					models.New(3, 3, 3),
+					models.New(4, 4, 4),
+					models.New(5, 5, 5),
 				},
 				chunkSize: 3,
 			},
@@ -84,15 +84,15 @@ func TestSplitSlice(t *testing.T) {
 			want: outData{
 				dst: [][]models.Classroom{
 					{
-						models.New(0, nil, nil),
-						models.New(1, nil, nil),
-						models.New(2, nil, nil),
+						models.New(0, 0, 0),
+						models.New(1, 1, 1),
+						models.New(2, 2, 2),
 					},
 
 					{
-						models.New(3, nil, nil),
-						models.New(4, nil, nil),
-						models.New(5, nil, nil),
+						models.New(3, 3, 3),
+						models.New(4, 4, 4),
+						models.New(5, 5, 5),
 					},
 				},
 				err: nil,
@@ -102,13 +102,13 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, nil, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
-					models.New(3, nil, nil),
-					models.New(4, nil, nil),
-					models.New(5, nil, nil),
-					models.New(6, nil, nil),
+					models.New(0, 0, 0),
+					models.New(1, 1, 1),
+					models.New(2, 2, 2),
+					models.New(3, 3, 3),
+					models.New(4, 4, 4),
+					models.New(5, 5, 5),
+					models.New(6, 6, 6),
 				},
 				chunkSize: 3,
 			},
@@ -116,19 +116,19 @@ func TestSplitSlice(t *testing.T) {
 			want: outData{
 				dst: [][]models.Classroom{
 					{
-						models.New(0, nil, nil),
-						models.New(1, nil, nil),
-						models.New(2, nil, nil),
+						models.New(0, 0, 0),
+						models.New(1, 1, 1),
+						models.New(2, 2, 2),
 					},
 
 					{
-						models.New(3, nil, nil),
-						models.New(4, nil, nil),
-						models.New(5, nil, nil),
+						models.New(3, 3, 3),
+						models.New(4, 4, 4),
+						models.New(5, 5, 5),
 					},
 
 					{
-						models.New(6, nil, nil),
+						models.New(6, 6, 6),
 					},
 				},
 				err: nil,
@@ -138,9 +138,9 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, []uint{1, 2}, nil),
-					models.New(1, nil, nil),
-					models.New(2, nil, nil),
+					models.New(0, 0, 0),
+					models.New(1, 1, 1),
+					models.New(2, 2, 2),
 				},
 				chunkSize: 5,
 			},
@@ -148,9 +148,9 @@ func TestSplitSlice(t *testing.T) {
 			want: outData{
 				dst: [][]models.Classroom{
 					{
-						models.New(0, []uint{1, 2}, nil),
-						models.New(1, nil, nil),
-						models.New(2, nil, nil),
+						models.New(0, 0, 0),
+						models.New(1, 1, 1),
+						models.New(2, 2, 2),
 					},
 				},
 				err: nil,

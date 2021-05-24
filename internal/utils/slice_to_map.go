@@ -21,12 +21,12 @@ func SliceToMap(src []models.Classroom) (dst map[uint]models.Classroom, err erro
 
 	for _, value := range src {
 
-		if _, found := dst[value.ClassroomId()]; found {
+		if _, found := dst[value.Id()]; found {
 			err = errors.New("id is already present")
 			return
 		}
 
-		dst[value.ClassroomId()] = value
+		dst[value.Id()] = value
 	}
 
 	return
