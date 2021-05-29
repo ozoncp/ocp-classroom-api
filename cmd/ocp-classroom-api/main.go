@@ -7,18 +7,22 @@ import (
 )
 
 func main() {
+
 	fmt.Println("Hello World!\r\nI'm ocp-classroom-api package by Aleksandr Kuzminykh.")
 
 	openReadCloseFile := func(i int) {
 
-		file, err := os.OpenFile("hello.txt", os.O_RDONLY|os.O_APPEND|os.O_CREATE, 0666)
+		file, err := os.Open("hello.txt")
 
 		if err != nil {
 			fmt.Println("Unable to create file:", err)
 			os.Exit(1)
 		}
 
-		defer file.Close()
+		defer func() {
+			file.Close()
+			fmt.Println("Closing file for", i+1, "th time.")
+		}()
 
 		var bytes []byte = make([]byte, 1024)
 
@@ -30,12 +34,12 @@ func main() {
 			fmt.Println("Unable to write to file:", err)
 			os.Exit(1)
 		}
-
-		time.Sleep(1 * time.Second)
 	}
 
 	for i := 0; i < 10; i++ {
 
 		openReadCloseFile(i)
+
+		time.Sleep(1 * time.Second)
 	}
 }
