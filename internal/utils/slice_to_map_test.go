@@ -69,8 +69,6 @@ func TestSliceToMap(t *testing.T) {
 		},
 	}
 
-	defer func() { recover() }()
-
 	for i, testCase := range testCases {
 
 		var got outData
