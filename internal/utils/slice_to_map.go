@@ -6,7 +6,7 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 )
 
-func SliceToMap(src []models.Classroom) (dst map[uint]models.Classroom, err error) {
+func SliceToMap(src []models.Classroom) (dst map[uint64]models.Classroom, err error) {
 
 	if src == nil {
 		err = errors.New("slice is nil")
@@ -17,16 +17,16 @@ func SliceToMap(src []models.Classroom) (dst map[uint]models.Classroom, err erro
 		return
 	}
 
-	dst = make(map[uint]models.Classroom, len(src))
+	dst = make(map[uint64]models.Classroom, len(src))
 
 	for _, value := range src {
 
-		if _, found := dst[value.Id()]; found {
+		if _, found := dst[value.Id]; found {
 			err = errors.New("id is already present")
 			return
 		}
 
-		dst[value.Id()] = value
+		dst[value.Id] = value
 	}
 
 	return

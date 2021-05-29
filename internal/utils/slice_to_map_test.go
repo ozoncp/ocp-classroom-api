@@ -11,7 +11,7 @@ import (
 func TestSliceToMap(t *testing.T) {
 
 	type outData struct {
-		dst map[uint]models.Classroom
+		dst map[uint64]models.Classroom
 		err error
 	}
 
@@ -37,7 +37,7 @@ func TestSliceToMap(t *testing.T) {
 			},
 
 			want: outData{
-				map[uint]models.Classroom{
+				map[uint64]models.Classroom{
 					0: models.New(0, 0, 0),
 				},
 				errors.New("id is already present"),
@@ -60,7 +60,7 @@ func TestSliceToMap(t *testing.T) {
 			},
 
 			want: outData{
-				map[uint]models.Classroom{
+				map[uint64]models.Classroom{
 					0: models.New(0, 0, 0),
 					1: models.New(1, 1, 1),
 				},
