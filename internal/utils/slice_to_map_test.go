@@ -32,13 +32,13 @@ func TestSliceToMap(t *testing.T) {
 
 		{
 			in: []models.Classroom{
-				models.New(0, 0, 0),
-				models.New(0, 1, 1),
+				{Id: 0, TenantId: 0, CalendarId: 0},
+				{Id: 0, TenantId: 1, CalendarId: 1},
 			},
 
 			want: outData{
 				map[uint64]models.Classroom{
-					0: models.New(0, 0, 0),
+					0: {Id: 0, TenantId: 0, CalendarId: 0},
 				},
 				errors.New("id is already present"),
 			},
@@ -55,14 +55,14 @@ func TestSliceToMap(t *testing.T) {
 
 		{
 			in: []models.Classroom{
-				models.New(0, 0, 0),
-				models.New(1, 1, 1),
+				{Id: 0, TenantId: 0, CalendarId: 0},
+				{Id: 1, TenantId: 1, CalendarId: 1},
 			},
 
 			want: outData{
 				map[uint64]models.Classroom{
-					0: models.New(0, 0, 0),
-					1: models.New(1, 1, 1),
+					0: {Id: 0, TenantId: 0, CalendarId: 0},
+					1: {Id: 1, TenantId: 1, CalendarId: 1},
 				},
 				nil,
 			},

@@ -54,10 +54,10 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, 0, 0),
-					models.New(1, 1, 1),
-					models.New(2, 2, 2),
-					models.New(3, 3, 3),
+					{Id: 0, TenantId: 0, CalendarId: 0},
+					{Id: 1, TenantId: 1, CalendarId: 1},
+					{Id: 2, TenantId: 2, CalendarId: 2},
+					{Id: 3, TenantId: 3, CalendarId: 3},
 				},
 				chunkSize: -1,
 			},
@@ -71,12 +71,12 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, 0, 0),
-					models.New(1, 1, 1),
-					models.New(2, 2, 2),
-					models.New(3, 3, 3),
-					models.New(4, 4, 4),
-					models.New(5, 5, 5),
+					{Id: 0, TenantId: 0, CalendarId: 0},
+					{Id: 1, TenantId: 1, CalendarId: 1},
+					{Id: 2, TenantId: 2, CalendarId: 2},
+					{Id: 3, TenantId: 3, CalendarId: 3},
+					{Id: 4, TenantId: 4, CalendarId: 4},
+					{Id: 5, TenantId: 5, CalendarId: 5},
 				},
 				chunkSize: 3,
 			},
@@ -84,15 +84,15 @@ func TestSplitSlice(t *testing.T) {
 			want: outData{
 				dst: [][]models.Classroom{
 					{
-						models.New(0, 0, 0),
-						models.New(1, 1, 1),
-						models.New(2, 2, 2),
+						{Id: 0, TenantId: 0, CalendarId: 0},
+						{Id: 1, TenantId: 1, CalendarId: 1},
+						{Id: 2, TenantId: 2, CalendarId: 2},
 					},
 
 					{
-						models.New(3, 3, 3),
-						models.New(4, 4, 4),
-						models.New(5, 5, 5),
+						{Id: 3, TenantId: 3, CalendarId: 3},
+						{Id: 4, TenantId: 4, CalendarId: 4},
+						{Id: 5, TenantId: 5, CalendarId: 5},
 					},
 				},
 				err: nil,
@@ -102,13 +102,13 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, 0, 0),
-					models.New(1, 1, 1),
-					models.New(2, 2, 2),
-					models.New(3, 3, 3),
-					models.New(4, 4, 4),
-					models.New(5, 5, 5),
-					models.New(6, 6, 6),
+					{Id: 0, TenantId: 0, CalendarId: 0},
+					{Id: 1, TenantId: 1, CalendarId: 1},
+					{Id: 2, TenantId: 2, CalendarId: 2},
+					{Id: 3, TenantId: 3, CalendarId: 3},
+					{Id: 4, TenantId: 4, CalendarId: 4},
+					{Id: 5, TenantId: 5, CalendarId: 5},
+					{Id: 6, TenantId: 6, CalendarId: 6},
 				},
 				chunkSize: 3,
 			},
@@ -116,19 +116,19 @@ func TestSplitSlice(t *testing.T) {
 			want: outData{
 				dst: [][]models.Classroom{
 					{
-						models.New(0, 0, 0),
-						models.New(1, 1, 1),
-						models.New(2, 2, 2),
+						{Id: 0, TenantId: 0, CalendarId: 0},
+						{Id: 1, TenantId: 1, CalendarId: 1},
+						{Id: 2, TenantId: 2, CalendarId: 2},
 					},
 
 					{
-						models.New(3, 3, 3),
-						models.New(4, 4, 4),
-						models.New(5, 5, 5),
+						{Id: 3, TenantId: 3, CalendarId: 3},
+						{Id: 4, TenantId: 4, CalendarId: 4},
+						{Id: 5, TenantId: 5, CalendarId: 5},
 					},
 
 					{
-						models.New(6, 6, 6),
+						{Id: 6, TenantId: 6, CalendarId: 6},
 					},
 				},
 				err: nil,
@@ -138,9 +138,9 @@ func TestSplitSlice(t *testing.T) {
 		{
 			in: inData{
 				src: []models.Classroom{
-					models.New(0, 0, 0),
-					models.New(1, 1, 1),
-					models.New(2, 2, 2),
+					{Id: 0, TenantId: 0, CalendarId: 0},
+					{Id: 1, TenantId: 1, CalendarId: 1},
+					{Id: 2, TenantId: 2, CalendarId: 2},
 				},
 				chunkSize: 5,
 			},
@@ -148,9 +148,9 @@ func TestSplitSlice(t *testing.T) {
 			want: outData{
 				dst: [][]models.Classroom{
 					{
-						models.New(0, 0, 0),
-						models.New(1, 1, 1),
-						models.New(2, 2, 2),
+						{Id: 0, TenantId: 0, CalendarId: 0},
+						{Id: 1, TenantId: 1, CalendarId: 1},
+						{Id: 2, TenantId: 2, CalendarId: 2},
 					},
 				},
 				err: nil,
