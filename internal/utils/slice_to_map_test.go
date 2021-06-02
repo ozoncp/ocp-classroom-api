@@ -11,7 +11,7 @@ import (
 func TestSliceToMap(t *testing.T) {
 
 	type outData struct {
-		dst map[uint]models.Classroom
+		dst map[uint64]models.Classroom
 		err error
 	}
 
@@ -32,13 +32,13 @@ func TestSliceToMap(t *testing.T) {
 
 		{
 			in: []models.Classroom{
-				models.New(0, 0, 0),
-				models.New(0, 1, 1),
+				{Id: 0, TenantId: 0, CalendarId: 0},
+				{Id: 0, TenantId: 1, CalendarId: 1},
 			},
 
 			want: outData{
-				map[uint]models.Classroom{
-					0: models.New(0, 0, 0),
+				map[uint64]models.Classroom{
+					0: {Id: 0, TenantId: 0, CalendarId: 0},
 				},
 				errors.New("id is already present"),
 			},
@@ -55,21 +55,19 @@ func TestSliceToMap(t *testing.T) {
 
 		{
 			in: []models.Classroom{
-				models.New(0, 0, 0),
-				models.New(1, 1, 1),
+				{Id: 0, TenantId: 0, CalendarId: 0},
+				{Id: 1, TenantId: 1, CalendarId: 1},
 			},
 
 			want: outData{
-				map[uint]models.Classroom{
-					0: models.New(0, 0, 0),
-					1: models.New(1, 1, 1),
+				map[uint64]models.Classroom{
+					0: {Id: 0, TenantId: 0, CalendarId: 0},
+					1: {Id: 1, TenantId: 1, CalendarId: 1},
 				},
 				nil,
 			},
 		},
 	}
-
-	defer func() { recover() }()
 
 	for i, testCase := range testCases {
 
