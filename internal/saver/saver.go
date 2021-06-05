@@ -45,20 +45,26 @@ type saver struct {
 
 	shouldCloseCh chan struct{}
 	isClosedCh    chan struct{}
+
+	isInited bool
 }
 
 func (s *saver) Init() error {
+
+	if s.isInited {
+		return errors.New("is already inited")
+	}
 
 	if s.capacity < 1 {
 		return errors.New("capacity < 1")
 	}
 
-	if s.flusher == nil {
-		return errors.New("flusher is nil")
-	}
-
 	if s.interval == 0 {
 		return errors.New("interval == 0")
+	}
+
+	if s.flusher == nil {
+		return errors.New("flusher is nil")
 	}
 
 	s.ticker = time.NewTicker(s.interval)
@@ -71,25 +77,34 @@ func (s *saver) Init() error {
 
 	go loop(s)
 
+	s.isInited = true
+
 	return nil
 }
 
 func (s *saver) Save(classroom models.Classroom) {
 
-	s.classroomCh <- classroom
+	if s.isInited {
+		s.classroomCh <- classroom
+	}
 }
 
 func (s *saver) Close() {
 
-	s.ticker.Stop()
+	if s.isInited {
 
-	s.shouldCloseCh <- struct{}{}
+		s.ticker.Stop()
 
-	<-s.isClosedCh
+		s.shouldCloseCh <- struct{}{}
 
-	close(s.classroomCh)
-	close(s.shouldCloseCh)
-	close(s.isClosedCh)
+		<-s.isClosedCh
+
+		close(s.classroomCh)
+		close(s.shouldCloseCh)
+		close(s.isClosedCh)
+
+		s.isInited = false
+	}
 }
 
 func loop(s *saver) {
