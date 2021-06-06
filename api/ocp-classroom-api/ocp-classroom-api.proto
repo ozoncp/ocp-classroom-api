@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+option go_package = "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api;ocp_classroom_api";
+
+package ocp.classroom.api;
+
+service OcpClassroomApi {
+    // Возвращает описание задачи по ее идентификатору
+    rpc DescribeClassroom(DescribeClassroomRequest) returns (DescribeClassroomResponse) {
+        option (google.api.http) = {
+            post: "/classrooms/{classroom_id}"
+        };
+    }
+}
+
+message DescribeClassroomRequest {
+    uint64 classroom_id = 1;
+    bool verbose = 2;
+}
+
+message DescribeClassroomResponse {
+  Classroom classroom = 1;
+}
+
+message Classroom {
+    uint64 classroom_id = 1;
+
+    uint64 tenantId = 2;
+    uint64 calendarId = 3;
+}

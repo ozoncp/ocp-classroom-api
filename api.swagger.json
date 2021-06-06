@@ -1,0 +1,107 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/ocp-classroom-api/ocp-classroom-api.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/classrooms/{classroom_id}": {
+      "post": {
+        "summary": "Возвращает описание задачи по ее идентификатору",
+        "operationId": "OcpClassroomApi_DescribeClassroom",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDescribeClassroomResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "classroom_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpClassroomApi"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiClassroom": {
+      "type": "object",
+      "properties": {
+        "classroom_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "tenantId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "calendarId": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiDescribeClassroomResponse": {
+      "type": "object",
+      "properties": {
+        "classroom": {
+          "$ref": "#/definitions/apiClassroom"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
