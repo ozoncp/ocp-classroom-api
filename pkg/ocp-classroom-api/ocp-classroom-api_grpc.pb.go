@@ -18,8 +18,14 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OcpClassroomApiClient interface {
-	// Возвращает описание задачи по ее идентификатору
-	DescribeClassroom(ctx context.Context, in *DescribeClassroomRequest, opts ...grpc.CallOption) (*DescribeClassroomResponse, error)
+	// Возвращает список учебных комнат
+	ListClassroomsV1(ctx context.Context, in *ListClassroomsV1Request, opts ...grpc.CallOption) (*ListClassroomsV1Response, error)
+	// Возвращает описание учебной комнаты по ее идентификатору
+	DescribeClassroomV1(ctx context.Context, in *DescribeClassroomV1Request, opts ...grpc.CallOption) (*DescribeClassroomV1Response, error)
+	// Создает новую учебную комнату
+	CreateClassroomV1(ctx context.Context, in *CreateClassroomV1Request, opts ...grpc.CallOption) (*CreateClassroomV1Response, error)
+	// Удаляет учебную комнату по её идентификатору
+	RemoveClassroomV1(ctx context.Context, in *RemoveClassroomV1Request, opts ...grpc.CallOption) (*RemoveClassroomV1Response, error)
 }
 
 type ocpClassroomApiClient struct {
@@ -30,9 +36,36 @@ func NewOcpClassroomApiClient(cc grpc.ClientConnInterface) OcpClassroomApiClient
 	return &ocpClassroomApiClient{cc}
 }
 
-func (c *ocpClassroomApiClient) DescribeClassroom(ctx context.Context, in *DescribeClassroomRequest, opts ...grpc.CallOption) (*DescribeClassroomResponse, error) {
-	out := new(DescribeClassroomResponse)
-	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/DescribeClassroom", in, out, opts...)
+func (c *ocpClassroomApiClient) ListClassroomsV1(ctx context.Context, in *ListClassroomsV1Request, opts ...grpc.CallOption) (*ListClassroomsV1Response, error) {
+	out := new(ListClassroomsV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/ListClassroomsV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpClassroomApiClient) DescribeClassroomV1(ctx context.Context, in *DescribeClassroomV1Request, opts ...grpc.CallOption) (*DescribeClassroomV1Response, error) {
+	out := new(DescribeClassroomV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/DescribeClassroomV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpClassroomApiClient) CreateClassroomV1(ctx context.Context, in *CreateClassroomV1Request, opts ...grpc.CallOption) (*CreateClassroomV1Response, error) {
+	out := new(CreateClassroomV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/CreateClassroomV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpClassroomApiClient) RemoveClassroomV1(ctx context.Context, in *RemoveClassroomV1Request, opts ...grpc.CallOption) (*RemoveClassroomV1Response, error) {
+	out := new(RemoveClassroomV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/RemoveClassroomV1", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +76,14 @@ func (c *ocpClassroomApiClient) DescribeClassroom(ctx context.Context, in *Descr
 // All implementations must embed UnimplementedOcpClassroomApiServer
 // for forward compatibility
 type OcpClassroomApiServer interface {
-	// Возвращает описание задачи по ее идентификатору
-	DescribeClassroom(context.Context, *DescribeClassroomRequest) (*DescribeClassroomResponse, error)
+	// Возвращает список учебных комнат
+	ListClassroomsV1(context.Context, *ListClassroomsV1Request) (*ListClassroomsV1Response, error)
+	// Возвращает описание учебной комнаты по ее идентификатору
+	DescribeClassroomV1(context.Context, *DescribeClassroomV1Request) (*DescribeClassroomV1Response, error)
+	// Создает новую учебную комнату
+	CreateClassroomV1(context.Context, *CreateClassroomV1Request) (*CreateClassroomV1Response, error)
+	// Удаляет учебную комнату по её идентификатору
+	RemoveClassroomV1(context.Context, *RemoveClassroomV1Request) (*RemoveClassroomV1Response, error)
 	mustEmbedUnimplementedOcpClassroomApiServer()
 }
 
@@ -52,8 +91,17 @@ type OcpClassroomApiServer interface {
 type UnimplementedOcpClassroomApiServer struct {
 }
 
-func (UnimplementedOcpClassroomApiServer) DescribeClassroom(context.Context, *DescribeClassroomRequest) (*DescribeClassroomResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DescribeClassroom not implemented")
+func (UnimplementedOcpClassroomApiServer) ListClassroomsV1(context.Context, *ListClassroomsV1Request) (*ListClassroomsV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListClassroomsV1 not implemented")
+}
+func (UnimplementedOcpClassroomApiServer) DescribeClassroomV1(context.Context, *DescribeClassroomV1Request) (*DescribeClassroomV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DescribeClassroomV1 not implemented")
+}
+func (UnimplementedOcpClassroomApiServer) CreateClassroomV1(context.Context, *CreateClassroomV1Request) (*CreateClassroomV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateClassroomV1 not implemented")
+}
+func (UnimplementedOcpClassroomApiServer) RemoveClassroomV1(context.Context, *RemoveClassroomV1Request) (*RemoveClassroomV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RemoveClassroomV1 not implemented")
 }
 func (UnimplementedOcpClassroomApiServer) mustEmbedUnimplementedOcpClassroomApiServer() {}
 
@@ -68,20 +116,74 @@ func RegisterOcpClassroomApiServer(s grpc.ServiceRegistrar, srv OcpClassroomApiS
 	s.RegisterService(&OcpClassroomApi_ServiceDesc, srv)
 }
 
-func _OcpClassroomApi_DescribeClassroom_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DescribeClassroomRequest)
+func _OcpClassroomApi_ListClassroomsV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListClassroomsV1Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(OcpClassroomApiServer).DescribeClassroom(ctx, in)
+		return srv.(OcpClassroomApiServer).ListClassroomsV1(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/ocp.classroom.api.OcpClassroomApi/DescribeClassroom",
+		FullMethod: "/ocp.classroom.api.OcpClassroomApi/ListClassroomsV1",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(OcpClassroomApiServer).DescribeClassroom(ctx, req.(*DescribeClassroomRequest))
+		return srv.(OcpClassroomApiServer).ListClassroomsV1(ctx, req.(*ListClassroomsV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpClassroomApi_DescribeClassroomV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DescribeClassroomV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpClassroomApiServer).DescribeClassroomV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.classroom.api.OcpClassroomApi/DescribeClassroomV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpClassroomApiServer).DescribeClassroomV1(ctx, req.(*DescribeClassroomV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpClassroomApi_CreateClassroomV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateClassroomV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpClassroomApiServer).CreateClassroomV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.classroom.api.OcpClassroomApi/CreateClassroomV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpClassroomApiServer).CreateClassroomV1(ctx, req.(*CreateClassroomV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpClassroomApi_RemoveClassroomV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RemoveClassroomV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpClassroomApiServer).RemoveClassroomV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.classroom.api.OcpClassroomApi/RemoveClassroomV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpClassroomApiServer).RemoveClassroomV1(ctx, req.(*RemoveClassroomV1Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -94,8 +196,20 @@ var OcpClassroomApi_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*OcpClassroomApiServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "DescribeClassroom",
-			Handler:    _OcpClassroomApi_DescribeClassroom_Handler,
+			MethodName: "ListClassroomsV1",
+			Handler:    _OcpClassroomApi_ListClassroomsV1_Handler,
+		},
+		{
+			MethodName: "DescribeClassroomV1",
+			Handler:    _OcpClassroomApi_DescribeClassroomV1_Handler,
+		},
+		{
+			MethodName: "CreateClassroomV1",
+			Handler:    _OcpClassroomApi_CreateClassroomV1_Handler,
+		},
+		{
+			MethodName: "RemoveClassroomV1",
+			Handler:    _OcpClassroomApi_RemoveClassroomV1_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

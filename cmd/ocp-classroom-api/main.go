@@ -1,17 +1,24 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"log"
+	"net"
 	"os"
 	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/onsi/ginkgo"
+	"google.golang.org/grpc"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/saver"
+
+	"github.com/ozoncp/ocp-classroom-api/internal/api"
+	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
 func main() {
@@ -19,7 +26,7 @@ func main() {
 	introduce()
 
 	cmd := 0
-	fmt.Print("What to call? (0 - concurrency work, 1 - file work): ")
+	fmt.Print("What to call? (0 - concurrency, 1 - file, 2 - grpc): ")
 	fmt.Scan(&cmd)
 	fmt.Println()
 
@@ -30,6 +37,10 @@ func main() {
 	} else if cmd == 1 {
 
 		doFileWork()
+
+	} else if cmd == 2 {
+
+		doGrpcWork()
 	}
 }
 
@@ -118,4 +129,26 @@ func doConcurrencyWork() {
 	}
 
 	saver.Close()
+}
+
+func doGrpcWork() {
+
+	fmt.Println("doGrpcWork...")
+
+	const grpcPort = ":7002"
+
+	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0"+grpcPort, "gRPC server endpoint")
+
+	listen, err := net.Listen("tcp", grpcPort)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	s := grpc.NewServer()
+	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi())
+
+	fmt.Printf("Server listening on %s\n", *grpcEndpoint)
+	if err := s.Serve(listen); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 }

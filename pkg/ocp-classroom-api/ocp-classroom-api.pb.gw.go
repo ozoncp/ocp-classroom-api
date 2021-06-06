@@ -34,45 +34,47 @@ var _ = descriptor.ForMessage
 var _ = metadata.Join
 
 var (
-	filter_OcpClassroomApi_DescribeClassroom_0 = &utilities.DoubleArray{Encoding: map[string]int{"classroom_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_OcpClassroomApi_ListClassroomsV1_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
 )
 
-func request_OcpClassroomApi_DescribeClassroom_0(ctx context.Context, marshaler runtime.Marshaler, client OcpClassroomApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DescribeClassroomRequest
+func request_OcpClassroomApi_ListClassroomsV1_0(ctx context.Context, marshaler runtime.Marshaler, client OcpClassroomApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListClassroomsV1Request
 	var metadata runtime.ServerMetadata
-
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["classroom_id"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "classroom_id")
-	}
-
-	protoReq.ClassroomId, err = runtime.Uint64(val)
-
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "classroom_id", err)
-	}
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_DescribeClassroom_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_ListClassroomsV1_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.DescribeClassroom(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ListClassroomsV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_OcpClassroomApi_DescribeClassroom_0(ctx context.Context, marshaler runtime.Marshaler, server OcpClassroomApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq DescribeClassroomRequest
+func local_request_OcpClassroomApi_ListClassroomsV1_0(ctx context.Context, marshaler runtime.Marshaler, server OcpClassroomApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ListClassroomsV1Request
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_ListClassroomsV1_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.ListClassroomsV1(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_OcpClassroomApi_DescribeClassroomV1_0 = &utilities.DoubleArray{Encoding: map[string]int{"classroom_id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
+
+func request_OcpClassroomApi_DescribeClassroomV1_0(ctx context.Context, marshaler runtime.Marshaler, client OcpClassroomApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DescribeClassroomV1Request
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -96,11 +98,135 @@ func local_request_OcpClassroomApi_DescribeClassroom_0(ctx context.Context, mars
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_DescribeClassroom_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_DescribeClassroomV1_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.DescribeClassroom(ctx, &protoReq)
+	msg, err := client.DescribeClassroomV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_OcpClassroomApi_DescribeClassroomV1_0(ctx context.Context, marshaler runtime.Marshaler, server OcpClassroomApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq DescribeClassroomV1Request
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["classroom_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "classroom_id")
+	}
+
+	protoReq.ClassroomId, err = runtime.Uint64(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "classroom_id", err)
+	}
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_DescribeClassroomV1_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.DescribeClassroomV1(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_OcpClassroomApi_CreateClassroomV1_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_OcpClassroomApi_CreateClassroomV1_0(ctx context.Context, marshaler runtime.Marshaler, client OcpClassroomApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateClassroomV1Request
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_CreateClassroomV1_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.CreateClassroomV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_OcpClassroomApi_CreateClassroomV1_0(ctx context.Context, marshaler runtime.Marshaler, server OcpClassroomApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq CreateClassroomV1Request
+	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_OcpClassroomApi_CreateClassroomV1_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.CreateClassroomV1(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+func request_OcpClassroomApi_RemoveClassroomV1_0(ctx context.Context, marshaler runtime.Marshaler, client OcpClassroomApiClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RemoveClassroomV1Request
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["classroom_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "classroom_id")
+	}
+
+	protoReq.ClassroomId, err = runtime.Uint64(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "classroom_id", err)
+	}
+
+	msg, err := client.RemoveClassroomV1(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_OcpClassroomApi_RemoveClassroomV1_0(ctx context.Context, marshaler runtime.Marshaler, server OcpClassroomApiServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq RemoveClassroomV1Request
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["classroom_id"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "classroom_id")
+	}
+
+	protoReq.ClassroomId, err = runtime.Uint64(val)
+
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "classroom_id", err)
+	}
+
+	msg, err := server.RemoveClassroomV1(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -111,7 +237,7 @@ func local_request_OcpClassroomApi_DescribeClassroom_0(ctx context.Context, mars
 // Note that using this registration option will cause many gRPC library features to stop working. Consider using RegisterOcpClassroomApiHandlerFromEndpoint instead.
 func RegisterOcpClassroomApiHandlerServer(ctx context.Context, mux *runtime.ServeMux, server OcpClassroomApiServer) error {
 
-	mux.Handle("POST", pattern_OcpClassroomApi_DescribeClassroom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_OcpClassroomApi_ListClassroomsV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
@@ -122,7 +248,7 @@ func RegisterOcpClassroomApiHandlerServer(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_OcpClassroomApi_DescribeClassroom_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_OcpClassroomApi_ListClassroomsV1_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -130,7 +256,76 @@ func RegisterOcpClassroomApiHandlerServer(ctx context.Context, mux *runtime.Serv
 			return
 		}
 
-		forward_OcpClassroomApi_DescribeClassroom_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OcpClassroomApi_ListClassroomsV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_OcpClassroomApi_DescribeClassroomV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OcpClassroomApi_DescribeClassroomV1_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OcpClassroomApi_DescribeClassroomV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_OcpClassroomApi_CreateClassroomV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OcpClassroomApi_CreateClassroomV1_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OcpClassroomApi_CreateClassroomV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("DELETE", pattern_OcpClassroomApi_RemoveClassroomV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_OcpClassroomApi_RemoveClassroomV1_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OcpClassroomApi_RemoveClassroomV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -175,7 +370,7 @@ func RegisterOcpClassroomApiHandler(ctx context.Context, mux *runtime.ServeMux, 
 // "OcpClassroomApiClient" to call the correct interceptors.
 func RegisterOcpClassroomApiHandlerClient(ctx context.Context, mux *runtime.ServeMux, client OcpClassroomApiClient) error {
 
-	mux.Handle("POST", pattern_OcpClassroomApi_DescribeClassroom_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_OcpClassroomApi_ListClassroomsV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -184,14 +379,74 @@ func RegisterOcpClassroomApiHandlerClient(ctx context.Context, mux *runtime.Serv
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_OcpClassroomApi_DescribeClassroom_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_OcpClassroomApi_ListClassroomsV1_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_OcpClassroomApi_DescribeClassroom_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_OcpClassroomApi_ListClassroomsV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_OcpClassroomApi_DescribeClassroomV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OcpClassroomApi_DescribeClassroomV1_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OcpClassroomApi_DescribeClassroomV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("POST", pattern_OcpClassroomApi_CreateClassroomV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OcpClassroomApi_CreateClassroomV1_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OcpClassroomApi_CreateClassroomV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("DELETE", pattern_OcpClassroomApi_RemoveClassroomV1_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_OcpClassroomApi_RemoveClassroomV1_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_OcpClassroomApi_RemoveClassroomV1_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -199,9 +454,21 @@ func RegisterOcpClassroomApiHandlerClient(ctx context.Context, mux *runtime.Serv
 }
 
 var (
-	pattern_OcpClassroomApi_DescribeClassroom_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 1, 0, 4, 1, 5, 1}, []string{"classrooms", "classroom_id"}, "", runtime.AssumeColonVerbOpt(true)))
+	pattern_OcpClassroomApi_ListClassroomsV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "classrooms"}, "", runtime.AssumeColonVerbOpt(true)))
+
+	pattern_OcpClassroomApi_DescribeClassroomV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "classrooms", "classroom_id"}, "", runtime.AssumeColonVerbOpt(true)))
+
+	pattern_OcpClassroomApi_CreateClassroomV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v1", "classrooms"}, "", runtime.AssumeColonVerbOpt(true)))
+
+	pattern_OcpClassroomApi_RemoveClassroomV1_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v1", "classrooms", "classroom_id"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
-	forward_OcpClassroomApi_DescribeClassroom_0 = runtime.ForwardResponseMessage
+	forward_OcpClassroomApi_ListClassroomsV1_0 = runtime.ForwardResponseMessage
+
+	forward_OcpClassroomApi_DescribeClassroomV1_0 = runtime.ForwardResponseMessage
+
+	forward_OcpClassroomApi_CreateClassroomV1_0 = runtime.ForwardResponseMessage
+
+	forward_OcpClassroomApi_RemoveClassroomV1_0 = runtime.ForwardResponseMessage
 )
