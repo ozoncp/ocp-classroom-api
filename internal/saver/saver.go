@@ -104,10 +104,6 @@ func (s *saver) Close() {
 
 		<-s.isClosedCh
 
-		close(s.classroomCh)
-		close(s.shouldCloseCh)
-		close(s.isClosedCh)
-
 		s.isInited = false
 	}
 }
