@@ -22,18 +22,18 @@ const (
 	Policy_DropFirst
 )
 
-func NewSaver(capacity uint, policy Policy, interval time.Duration, flusher flusher.Flusher) Saver {
+func NewSaver(capacity uint, policy Policy, interval time.Duration, flusher flusher.Flusher) (Saver, error) {
 
-	if capacity < 1 {
-		return nil
+	if capacity == 0 {
+		return nil, errors.New("capacity is 0")
 	}
 
 	if interval == 0 {
-		return nil
+		return nil, errors.New("interval is 0")
 	}
 
 	if flusher == nil {
-		return nil
+		return nil, errors.New("flusher is nil")
 	}
 
 	return &saver{
@@ -41,7 +41,7 @@ func NewSaver(capacity uint, policy Policy, interval time.Duration, flusher flus
 		policy:   policy,
 		interval: interval,
 		flusher:  flusher,
-	}
+	}, nil
 }
 
 type saver struct {
