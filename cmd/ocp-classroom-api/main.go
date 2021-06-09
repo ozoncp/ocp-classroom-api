@@ -23,6 +23,8 @@ import (
 
 func main() {
 
+	flag.Parse()
+
 	introduce()
 
 	cmd := 0

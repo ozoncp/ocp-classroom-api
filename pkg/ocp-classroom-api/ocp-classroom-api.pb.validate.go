@@ -15,7 +15,7 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // ensure the imports are used
@@ -30,7 +30,7 @@ var (
 	_ = time.Duration(0)
 	_ = (*url.URL)(nil)
 	_ = (*mail.Address)(nil)
-	_ = ptypes.DynamicAny{}
+	_ = anypb.Any{}
 )
 
 // Validate checks the field values on ListClassroomsV1Request with the rules
@@ -41,7 +41,12 @@ func (m *ListClassroomsV1Request) Validate() error {
 		return nil
 	}
 
-	// no validation rules for Limit
+	if m.GetLimit() <= 0 {
+		return ListClassroomsV1RequestValidationError{
+			field:  "Limit",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	// no validation rules for Offset
 
@@ -194,7 +199,12 @@ func (m *DescribeClassroomV1Request) Validate() error {
 		return nil
 	}
 
-	// no validation rules for ClassroomId
+	if m.GetClassroomId() <= 0 {
+		return DescribeClassroomV1RequestValidationError{
+			field:  "ClassroomId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	// no validation rules for Verbose
 
@@ -345,9 +355,19 @@ func (m *CreateClassroomV1Request) Validate() error {
 		return nil
 	}
 
-	// no validation rules for TenantId
+	if m.GetTenantId() <= 0 {
+		return CreateClassroomV1RequestValidationError{
+			field:  "TenantId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for CalendarId
+	if m.GetCalendarId() <= 0 {
+		return CreateClassroomV1RequestValidationError{
+			field:  "CalendarId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }
@@ -485,7 +505,12 @@ func (m *RemoveClassroomV1Request) Validate() error {
 		return nil
 	}
 
-	// no validation rules for ClassroomId
+	if m.GetClassroomId() <= 0 {
+		return RemoveClassroomV1RequestValidationError{
+			field:  "ClassroomId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }
@@ -622,11 +647,26 @@ func (m *Classroom) Validate() error {
 		return nil
 	}
 
-	// no validation rules for ClassroomId
+	if m.GetClassroomId() <= 0 {
+		return ClassroomValidationError{
+			field:  "ClassroomId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for TenantId
+	if m.GetTenantId() <= 0 {
+		return ClassroomValidationError{
+			field:  "TenantId",
+			reason: "value must be greater than 0",
+		}
+	}
 
-	// no validation rules for CalendarId
+	if m.GetCalendarId() <= 0 {
+		return ClassroomValidationError{
+			field:  "CalendarId",
+			reason: "value must be greater than 0",
+		}
+	}
 
 	return nil
 }
