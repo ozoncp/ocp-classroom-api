@@ -58,8 +58,8 @@ message DescribeClassroomV1Response {
 }
 
 message CreateClassroomV1Request {
-    uint64 tenantId = 1 [(validate.rules).uint64.gt = 0];
-    uint64 calendarId = 2 [(validate.rules).uint64.gt = 0];
+    uint64 tenant_id = 1 [(validate.rules).uint64.gt = 0];
+    uint64 calendar_id = 2 [(validate.rules).uint64.gt = 0];
 }
 
 message CreateClassroomV1Response {
@@ -77,6 +77,6 @@ message RemoveClassroomV1Response {
 message Classroom {
     uint64 classroom_id = 1 [(validate.rules).uint64.gt = 0];
 
-    uint64 tenantId = 2 [(validate.rules).uint64.gt = 0];
-    uint64 calendarId = 3 [(validate.rules).uint64.gt = 0];
+    uint64 tenant_id = 2 [(validate.rules).uint64.gt = 0];
+    uint64 calendar_id = 3 [(validate.rules).uint64.gt = 0];
 }

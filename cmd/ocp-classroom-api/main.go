@@ -10,15 +10,15 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/onsi/ginkgo"
-	"google.golang.org/grpc"
 
+	"github.com/ozoncp/ocp-classroom-api/internal/api"
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/saver"
 
-	"github.com/ozoncp/ocp-classroom-api/internal/api"
 	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
+	"google.golang.org/grpc"
 )
 
 func main() {

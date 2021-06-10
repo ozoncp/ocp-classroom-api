@@ -9,11 +9,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const (
-	errClassroomNotFound        = "classroom not found"
-	errClassroomCannotBeCreated = "classroom not created"
-)
-
 type api struct {
 	grpcApi.UnimplementedOcpClassroomApiServer
 }
@@ -23,7 +18,7 @@ func (a *api) ListClassroomsV1(ctx context.Context,
 
 	if err := req.Validate(); err != nil {
 
-		log.Err(err).Msg("request can not be validated")
+		log.Err(err).Msg("request failed validation")
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -33,8 +28,7 @@ func (a *api) ListClassroomsV1(ctx context.Context,
 		Uint64("Offset", req.Offset).
 		Msg("ListClassroomV1 call")
 
-	err := status.Error(codes.NotFound, errClassroomNotFound)
-	return nil, err
+	return nil, nil
 }
 
 func (a *api) DescribeClassroomV1(ctx context.Context,
@@ -42,7 +36,7 @@ func (a *api) DescribeClassroomV1(ctx context.Context,
 
 	if err := req.Validate(); err != nil {
 
-		log.Err(err).Msg("request can not be validated")
+		log.Err(err).Msg("request failed validation")
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -52,8 +46,7 @@ func (a *api) DescribeClassroomV1(ctx context.Context,
 		Bool("Verbose", req.Verbose).
 		Msg("DescribeClassroomV1 call")
 
-	err := status.Error(codes.NotFound, errClassroomNotFound)
-	return nil, err
+	return nil, nil
 }
 
 func (a *api) CreateClassroomV1(ctx context.Context,
@@ -61,7 +54,7 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 
 	if err := req.Validate(); err != nil {
 
-		log.Err(err).Msg("request can not be validated")
+		log.Err(err).Msg("request failed validation")
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -71,8 +64,7 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 		Uint64("CalendarId", req.CalendarId).
 		Msg("CreateClassroomV1 call")
 
-	err := status.Error(codes.NotFound, errClassroomCannotBeCreated)
-	return nil, err
+	return nil, nil
 }
 
 func (a *api) RemoveClassroomV1(ctx context.Context,
@@ -80,7 +72,7 @@ func (a *api) RemoveClassroomV1(ctx context.Context,
 
 	if err := req.Validate(); err != nil {
 
-		log.Err(err).Msg("request can not be validated")
+		log.Err(err).Msg("request failed validation")
 
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -89,8 +81,7 @@ func (a *api) RemoveClassroomV1(ctx context.Context,
 		Uint64("ClassroomId", req.ClassroomId).
 		Msg("RemoveClassroomV1 call")
 
-	err := status.Error(codes.NotFound, errClassroomNotFound)
-	return nil, err
+	return nil, nil
 }
 
 func NewOcpClassroomApi() grpcApi.OcpClassroomApiServer {
