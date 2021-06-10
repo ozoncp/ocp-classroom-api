@@ -143,8 +143,9 @@ func doGrpcWork() {
 	log.Debug().Msg("doGrpcWork...")
 
 	const grpcPort = ":7002"
+	var grpcEndpoint = *flag.String("grpc-server-endpoint", "0.0.0.0"+grpcPort, "gRPC server endpoint")
 
-	listen, err := net.Listen("tcp", grpcPort)
+	listen, err := net.Listen("tcp", grpcEndpoint)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to listen")
 		os.Exit(1)
@@ -153,7 +154,7 @@ func doGrpcWork() {
 	s := grpc.NewServer()
 	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi())
 
-	log.Info().Str("grpc end point", *flag.String("grpc-server-endpoint", "0.0.0.0"+grpcPort, "gRPC server endpoint")).Msg("Server listening")
+	log.Info().Str("gRPC server endpoint", grpcEndpoint).Msg("Server listening")
 	if err := s.Serve(listen); err != nil {
 		log.Fatal().Err(err).Msg("Failed to serve")
 		os.Exit(1)
