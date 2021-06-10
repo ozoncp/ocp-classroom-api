@@ -3,10 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net"
 	"os"
 	"time"
+
+	"github.com/rs/zerolog/log"
 
 	"github.com/golang/mock/gomock"
 	"github.com/onsi/ginkgo"
@@ -32,6 +33,8 @@ func main() {
 	fmt.Scan(&cmd)
 	fmt.Println()
 
+	log.Debug().Int("cmd", cmd).Send()
+
 	if cmd == 0 {
 
 		doConcurrencyWork()
@@ -47,36 +50,36 @@ func main() {
 }
 
 func introduce() {
-	fmt.Println("Hello World!\r\nI'm ocp-classroom-api package by Aleksandr Kuzminykh.")
-	fmt.Println()
+	fmt.Println("Hello World! I'm ocp-classroom-api package by Aleksandr Kuzminykh.")
 }
 
 func doFileWork() {
 
-	fmt.Println("doFileWork...")
+	log.Debug().Msg("doFileWork...")
 
 	openReadCloseFile := func(i int) {
 
 		file, err := os.Open("hello.txt")
 
 		if err != nil {
-			fmt.Println("Unable to create file:", err)
+			log.Error().Err(err).Msg("Unable to create file")
 			os.Exit(1)
 		}
 
 		defer func() {
 			file.Close()
-			fmt.Println("Closing file for", i+1, "th time.")
+			log.Info().Msg("Closing file for " + fmt.Sprint(i+1) + " th time")
 		}()
 
 		var bytes []byte = make([]byte, 1024)
+		var bytesCount int
 
-		_, err = file.Read(bytes)
+		bytesCount, err = file.Read(bytes)
 
-		fmt.Println("Reading file for", i+1, "th time:", string(bytes))
+		log.Info().Str("File", string(bytes[:bytesCount])).Msg("Reading file for" + fmt.Sprint(i+1) + "th time")
 
 		if err != nil {
-			fmt.Println("Unable to write to file:", err)
+			log.Error().Err(err).Msg("Unable to write to file")
 			os.Exit(1)
 		}
 	}
@@ -91,7 +94,7 @@ func doFileWork() {
 
 func doConcurrencyWork() {
 
-	fmt.Println("doConcurrencyWork...")
+	log.Debug().Msg("doConcurrencyWork...")
 
 	ctrl := gomock.NewController(ginkgo.GinkgoT())
 	mockRepo := mocks.NewMockRepo(ctrl)
@@ -103,8 +106,8 @@ func doConcurrencyWork() {
 	err := saver.Init()
 
 	if err != nil {
-		fmt.Println("Can not Init saver:", err)
-		os.Exit(0)
+		log.Fatal().Err(err).Msg("Can not Init saver")
+		os.Exit(1)
 	}
 
 	var classroomId uint64 = 0
@@ -115,6 +118,8 @@ func doConcurrencyWork() {
 
 		var cmd string
 		fmt.Scan(&cmd)
+
+		log.Debug().Str("cmd", cmd).Send()
 
 		if cmd == "s" {
 
@@ -135,22 +140,22 @@ func doConcurrencyWork() {
 
 func doGrpcWork() {
 
-	fmt.Println("doGrpcWork...")
+	log.Debug().Msg("doGrpcWork...")
 
 	const grpcPort = ":7002"
 
-	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0"+grpcPort, "gRPC server endpoint")
-
 	listen, err := net.Listen("tcp", grpcPort)
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		log.Fatal().Err(err).Msg("Failed to listen")
+		os.Exit(1)
 	}
 
 	s := grpc.NewServer()
 	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi())
 
-	fmt.Printf("Server listening on %s\n", *grpcEndpoint)
+	log.Info().Str("grpc end point", *flag.String("grpc-server-endpoint", "0.0.0.0"+grpcPort, "gRPC server endpoint")).Msg("Server listening")
 	if err := s.Serve(listen); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatal().Err(err).Msg("Failed to serve")
+		os.Exit(1)
 	}
 }
