@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"time"
@@ -18,8 +17,6 @@ import (
 )
 
 func main() {
-
-	flag.Parse()
 
 	introduce()
 

@@ -14,16 +14,20 @@ import (
 
 func main() {
 
+	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
+
 	flag.Parse()
 
 	log.Debug().Msg("doGrpcClientWork...")
 
-	conn, err := grpc.Dial("localhost:7002", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial(*grpcEndpoint, grpc.WithInsecure(), grpc.WithBlock())
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to connect")
 	}
 	defer conn.Close()
+
+	log.Debug().Str("gRPC server endpoint", *grpcEndpoint).Msg("Client connected")
 
 	c := desc.NewOcpClassroomApiClient(conn)
 

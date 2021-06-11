@@ -14,12 +14,13 @@ import (
 
 func main() {
 
+	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
+
+	flag.Parse()
+
 	log.Debug().Msg("doGrpcServerWork...")
 
-	const grpcPort = ":7002"
-	var grpcEndpoint = *flag.String("grpc-server-endpoint", "0.0.0.0"+grpcPort, "gRPC server endpoint")
-
-	listen, err := net.Listen("tcp", grpcEndpoint)
+	listen, err := net.Listen("tcp", *grpcEndpoint)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to listen")
 	}
@@ -27,7 +28,7 @@ func main() {
 	s := grpc.NewServer()
 	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi())
 
-	log.Info().Str("gRPC server endpoint", grpcEndpoint).Msg("Server listening")
+	log.Info().Str("gRPC server endpoint", *grpcEndpoint).Msg("Server listening")
 	if err := s.Serve(listen); err != nil {
 		log.Fatal().Err(err).Msg("Failed to serve")
 	}
