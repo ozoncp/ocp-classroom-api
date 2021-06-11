@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net"
 	"os"
 	"time"
 
@@ -12,14 +11,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/onsi/ginkgo"
 
-	"github.com/ozoncp/ocp-classroom-api/internal/api"
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/saver"
-
-	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
-	"google.golang.org/grpc"
 )
 
 func main() {
@@ -29,7 +24,7 @@ func main() {
 	introduce()
 
 	cmd := 0
-	fmt.Print("What to call? (0 - concurrency, 1 - file, 2 - grpc): ")
+	fmt.Print("What to call? (0 - concurrency, 1 - file): ")
 	fmt.Scan(&cmd)
 	fmt.Println()
 
@@ -43,9 +38,6 @@ func main() {
 
 		doFileWork()
 
-	} else if cmd == 2 {
-
-		doGrpcWork()
 	}
 }
 
@@ -62,8 +54,7 @@ func doFileWork() {
 		file, err := os.Open("hello.txt")
 
 		if err != nil {
-			log.Error().Err(err).Msg("Unable to create file")
-			os.Exit(1)
+			log.Fatal().Err(err).Msg("Unable to create file")
 		}
 
 		defer func() {
@@ -79,8 +70,7 @@ func doFileWork() {
 		log.Info().Str("File", string(bytes[:bytesCount])).Msg("Reading file for" + fmt.Sprint(i+1) + "th time")
 
 		if err != nil {
-			log.Error().Err(err).Msg("Unable to write to file")
-			os.Exit(1)
+			log.Fatal().Err(err).Msg("Unable to write to file")
 		}
 	}
 
@@ -102,8 +92,7 @@ func doConcurrencyWork() {
 	saver, err := saver.New(5, saver.Policy_DropAll, time.Second*15, flusher.New(mockRepo, 3))
 
 	if err != nil {
-		fmt.Println("Can not get new Saver instance:", err)
-		os.Exit(0)
+		log.Fatal().Err(err).Msg("Failed to get new Saver instance")
 	}
 
 	mockRepo.EXPECT().AddClassrooms(gomock.Any()).AnyTimes().Return(nil)
@@ -136,27 +125,4 @@ func doConcurrencyWork() {
 	}
 
 	saver.Close()
-}
-
-func doGrpcWork() {
-
-	log.Debug().Msg("doGrpcWork...")
-
-	const grpcPort = ":7002"
-	var grpcEndpoint = *flag.String("grpc-server-endpoint", "0.0.0.0"+grpcPort, "gRPC server endpoint")
-
-	listen, err := net.Listen("tcp", grpcEndpoint)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to listen")
-		os.Exit(1)
-	}
-
-	s := grpc.NewServer()
-	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi())
-
-	log.Info().Str("gRPC server endpoint", grpcEndpoint).Msg("Server listening")
-	if err := s.Serve(listen); err != nil {
-		log.Fatal().Err(err).Msg("Failed to serve")
-		os.Exit(1)
-	}
 }
