@@ -22,14 +22,26 @@ const (
 	Policy_DropFirst
 )
 
-func NewSaver(capacity uint, policy Policy, interval time.Duration, flusher flusher.Flusher) Saver {
+func NewSaver(capacity uint, policy Policy, interval time.Duration, flusher flusher.Flusher) (Saver, error) {
+
+	if capacity == 0 {
+		return nil, errors.New("capacity is 0")
+	}
+
+	if interval == 0 {
+		return nil, errors.New("interval is 0")
+	}
+
+	if flusher == nil {
+		return nil, errors.New("flusher is nil")
+	}
 
 	return &saver{
 		capacity: capacity,
 		policy:   policy,
 		interval: interval,
 		flusher:  flusher,
-	}
+	}, nil
 }
 
 type saver struct {
@@ -55,18 +67,6 @@ func (s *saver) Init() error {
 		return errors.New("is already inited")
 	}
 
-	if s.capacity < 1 {
-		return errors.New("capacity < 1")
-	}
-
-	if s.interval == 0 {
-		return errors.New("interval == 0")
-	}
-
-	if s.flusher == nil {
-		return errors.New("flusher is nil")
-	}
-
 	s.ticker = time.NewTicker(s.interval)
 
 	s.classrooms = make([]models.Classroom, 0, s.capacity)
@@ -85,7 +85,12 @@ func (s *saver) Init() error {
 func (s *saver) Save(classroom models.Classroom) {
 
 	if s.isInited {
+
 		s.classroomCh <- classroom
+
+	} else {
+
+		panic("can not Save because Saver is not inited")
 	}
 }
 
@@ -98,10 +103,6 @@ func (s *saver) Close() {
 		s.shouldCloseCh <- struct{}{}
 
 		<-s.isClosedCh
-
-		close(s.classroomCh)
-		close(s.shouldCloseCh)
-		close(s.isClosedCh)
 
 		s.isInited = false
 	}

@@ -99,11 +99,16 @@ func doConcurrencyWork() {
 	ctrl := gomock.NewController(ginkgo.GinkgoT())
 	mockRepo := mocks.NewMockRepo(ctrl)
 
-	saver := saver.NewSaver(5, saver.Policy_DropAll, time.Second*15, flusher.New(mockRepo, 3))
+	saver, err := saver.NewSaver(5, saver.Policy_DropAll, time.Second*15, flusher.New(mockRepo, 3))
+
+	if err != nil {
+		fmt.Println("Can not get new Saver instance:", err)
+		os.Exit(0)
+	}
 
 	mockRepo.EXPECT().AddClassrooms(gomock.Any()).AnyTimes().Return(nil)
 
-	err := saver.Init()
+	err = saver.Init()
 
 	if err != nil {
 		log.Fatal().Err(err).Msg("Can not Init saver")

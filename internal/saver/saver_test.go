@@ -37,13 +37,64 @@ var _ = Describe("Saver", func() {
 		ctrl.Finish()
 	})
 
+	Describe("NewSaver call", func() {
+
+		When("parameters are valid", func() {
+
+			It("returns Saver instance", func() {
+
+				svr, err := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+
+				Expect(svr).ShouldNot(BeNil())
+				Expect(err).ShouldNot(HaveOccurred())
+			})
+		})
+
+		When("parameters are not valid", func() {
+
+			It("returns nil if capacity is not valid", func() {
+
+				svr, err := saver.NewSaver(0, saver.Policy_DropAll, time.Second, fl)
+
+				Expect(svr).Should(BeNil())
+				Expect(err).Should(HaveOccurred())
+			})
+
+			It("returns nil if interval is not valid", func() {
+
+				svr, err := saver.NewSaver(capacity, saver.Policy_DropAll, 0, fl)
+
+				Expect(svr).Should(BeNil())
+				Expect(err).Should(HaveOccurred())
+			})
+
+			It("returns nil if flusher is nil", func() {
+
+				svr, err := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, nil)
+
+				Expect(svr).Should(BeNil())
+				Expect(err).Should(HaveOccurred())
+			})
+		})
+	})
+
 	Describe("Init call", func() {
+
+		var svr saver.Saver
+
+		BeforeEach(func() {
+
+			var err error
+			svr, err = saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+
+			if err != nil {
+				panic("err is not nil in BeforeEach")
+			}
+		})
 
 		When("parameters are valid", func() {
 
 			It("starts to work and returns nil", func() {
-
-				svr := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
 
 				err := svr.Init()
 
@@ -53,38 +104,9 @@ var _ = Describe("Saver", func() {
 			})
 		})
 
-		When("parameters are not valid", func() {
+		When("it is already inited", func() {
 
-			It("returns error if capacity is wrong", func() {
-
-				svr := saver.NewSaver(0, saver.Policy_DropAll, time.Second, fl)
-
-				err := svr.Init()
-
-				Expect(err).Should(HaveOccurred())
-			})
-
-			It("returns error if interval is wrong", func() {
-
-				svr := saver.NewSaver(capacity, saver.Policy_DropAll, 0, fl)
-
-				err := svr.Init()
-
-				Expect(err).Should(HaveOccurred())
-			})
-
-			It("returns error if flusher is nil", func() {
-
-				svr := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, nil)
-
-				err := svr.Init()
-
-				Expect(err).Should(HaveOccurred())
-			})
-
-			It("returns error if Saver is already inited", func() {
-
-				svr := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+			It("returns error ", func() {
 
 				err := svr.Init()
 
@@ -103,11 +125,30 @@ var _ = Describe("Saver", func() {
 
 		When("Save is called", func() {
 
+			When("Saver still is not inited", func() {
+
+				It("panics", func() {
+
+					svr, err := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+
+					Expect(svr).ShouldNot(BeNil())
+					Expect(err).ShouldNot(HaveOccurred())
+
+					Expect(func() {
+						classroom := models.Classroom{Id: 1, TenantId: 1, CalendarId: 1}
+						svr.Save(classroom)
+					}).Should(Panic())
+				})
+			})
+
 			When("capacity is not reached", func() {
 
 				It("flushes all saved classrooms", func() {
 
-					svr := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+					svr, err := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+
+					Expect(svr).ShouldNot(BeNil())
+					Expect(err).ShouldNot(HaveOccurred())
 
 					if err := svr.Init(); err != nil {
 						Fail("Init call failed")
@@ -141,7 +182,10 @@ var _ = Describe("Saver", func() {
 
 				It("flushes only new classrooms after dropping all", func() {
 
-					svr := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+					svr, err := saver.NewSaver(capacity, saver.Policy_DropAll, time.Second, fl)
+
+					Expect(svr).ShouldNot(BeNil())
+					Expect(err).ShouldNot(HaveOccurred())
 
 					if err := svr.Init(); err != nil {
 						Fail("Init call failed")
@@ -172,7 +216,10 @@ var _ = Describe("Saver", func() {
 
 				It("flushes classrooms after dropping first", func() {
 
-					svr := saver.NewSaver(capacity, saver.Policy_DropFirst, time.Second, fl)
+					svr, err := saver.NewSaver(capacity, saver.Policy_DropFirst, time.Second, fl)
+
+					Expect(svr).ShouldNot(BeNil())
+					Expect(err).ShouldNot(HaveOccurred())
 
 					if err := svr.Init(); err != nil {
 						Fail("Init call failed")
@@ -209,7 +256,10 @@ var _ = Describe("Saver", func() {
 
 				It("flushes all classrooms", func() {
 
-					svr := saver.NewSaver(capacity, saver.Policy_DropAll, time.Minute, fl)
+					svr, err := saver.NewSaver(capacity, saver.Policy_DropAll, time.Minute, fl)
+
+					Expect(svr).ShouldNot(BeNil())
+					Expect(err).ShouldNot(HaveOccurred())
 
 					if err := svr.Init(); err != nil {
 						Fail("Init call failed")
