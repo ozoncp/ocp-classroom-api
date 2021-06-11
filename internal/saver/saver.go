@@ -42,6 +42,14 @@ func New(capacity uint, policy Policy, interval time.Duration, flusher flusher.F
 		policy:   policy,
 		interval: interval,
 		flusher:  flusher,
+
+		ticker: time.NewTicker(interval),
+
+		classrooms:  make([]models.Classroom, 0, capacity),
+		classroomCh: make(chan models.Classroom),
+
+		shouldCloseCh: make(chan struct{}),
+		isClosedCh:    make(chan struct{}),
 	}, nil
 }
 
@@ -62,15 +70,32 @@ type saver struct {
 
 func (s *saver) Init() {
 
-	s.ticker = time.NewTicker(s.interval)
+	go func() {
 
-	s.classrooms = make([]models.Classroom, 0, s.capacity)
-	s.classroomCh = make(chan models.Classroom)
+		for {
+			select {
 
-	s.shouldCloseCh = make(chan struct{})
-	s.isClosedCh = make(chan struct{})
+			case classroom := <-s.classroomCh:
 
-	go loop(s)
+				s.save(&classroom)
+
+			case <-s.ticker.C:
+
+				s.flush()
+
+			case <-s.shouldCloseCh:
+
+				s.flush()
+
+				log.Debug().Str("package", "saver").Msg("closing")
+
+				s.isClosedCh <- struct{}{}
+
+				return
+			}
+
+		}
+	}()
 }
 
 func (s *saver) Save(classroom models.Classroom) {
@@ -84,33 +109,6 @@ func (s *saver) Close() {
 	s.shouldCloseCh <- struct{}{}
 
 	<-s.isClosedCh
-}
-
-func loop(s *saver) {
-
-	for {
-		select {
-
-		case classroom := <-s.classroomCh:
-
-			s.save(&classroom)
-
-		case <-s.ticker.C:
-
-			s.flush()
-
-		case <-s.shouldCloseCh:
-
-			s.flush()
-
-			log.Debug().Str("package", "saver").Msg("closing")
-
-			s.isClosedCh <- struct{}{}
-
-			return
-		}
-
-	}
 }
 
 func (s *saver) save(classroom *models.Classroom) {
