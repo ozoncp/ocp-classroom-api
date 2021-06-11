@@ -1,0 +1,234 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "api/ocp-classroom-api/ocp-classroom-api.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/classrooms": {
+      "get": {
+        "summary": "Возвращает список учебных комнат",
+        "operationId": "OcpClassroomApi_ListClassroomsV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListClassroomsV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpClassroomApi"
+        ]
+      },
+      "post": {
+        "summary": "Создает новую учебную комнату",
+        "operationId": "OcpClassroomApi_CreateClassroomV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreateClassroomV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "tags": [
+          "OcpClassroomApi"
+        ]
+      }
+    },
+    "/v1/classrooms/{classroom_id}": {
+      "get": {
+        "summary": "Возвращает описание учебной комнаты по ее идентификатору",
+        "operationId": "OcpClassroomApi_DescribeClassroomV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDescribeClassroomV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "classroom_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "verbose",
+            "in": "query",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "tags": [
+          "OcpClassroomApi"
+        ]
+      },
+      "delete": {
+        "summary": "Удаляет учебную комнату по её идентификатору",
+        "operationId": "OcpClassroomApi_RemoveClassroomV1",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiRemoveClassroomV1Response"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "classroom_id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "OcpClassroomApi"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiClassroom": {
+      "type": "object",
+      "properties": {
+        "classroom_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "tenant_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "calendar_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiCreateClassroomV1Response": {
+      "type": "object",
+      "properties": {
+        "classroom_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiDescribeClassroomV1Response": {
+      "type": "object",
+      "properties": {
+        "classroom": {
+          "$ref": "#/definitions/apiClassroom"
+        },
+        "comment": {
+          "type": "string"
+        }
+      }
+    },
+    "apiListClassroomsV1Response": {
+      "type": "object",
+      "properties": {
+        "classrooms": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiClassroom"
+          }
+        }
+      }
+    },
+    "apiRemoveClassroomV1Response": {
+      "type": "object",
+      "properties": {
+        "found": {
+          "type": "boolean"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

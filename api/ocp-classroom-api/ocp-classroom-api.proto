@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+import "google/api/annotations.proto";
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+
+option go_package = "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api;ocp_classroom_api";
+
+package ocp.classroom.api;
+
+service OcpClassroomApi {
+
+    // Возвращает список учебных комнат
+    rpc ListClassroomsV1(ListClassroomsV1Request) returns (ListClassroomsV1Response) {
+        option (google.api.http) = {
+            get: "/v1/classrooms"
+        };
+    }
+
+    // Возвращает описание учебной комнаты по ее идентификатору
+    rpc DescribeClassroomV1(DescribeClassroomV1Request) returns (DescribeClassroomV1Response) {
+        option (google.api.http) = {
+            get: "/v1/classrooms/{classroom_id}"
+        };
+    }
+
+    // Создает новую учебную комнату
+    rpc CreateClassroomV1(CreateClassroomV1Request) returns (CreateClassroomV1Response) {
+        option (google.api.http) = {
+            post: "/v1/classrooms"
+        };
+    }
+
+    // Удаляет учебную комнату по её идентификатору
+    rpc RemoveClassroomV1(RemoveClassroomV1Request) returns (RemoveClassroomV1Response) {
+        option (google.api.http) = {
+            delete: "/v1/classrooms/{classroom_id}"
+        };
+    }
+}
+
+message ListClassroomsV1Request {
+    uint64 limit = 1 [(validate.rules).uint64.gt = 0];
+    uint64 offset = 2;
+}
+
+message ListClassroomsV1Response {
+    repeated Classroom classrooms = 1;
+}
+
+message DescribeClassroomV1Request {
+    uint64 classroom_id = 1 [(validate.rules).uint64.gt = 0];
+    bool verbose = 2;
+}
+
+message DescribeClassroomV1Response {
+    Classroom classroom = 1;
+    string comment = 2;
+}
+
+message CreateClassroomV1Request {
+    uint64 tenant_id = 1 [(validate.rules).uint64.gt = 0];
+    uint64 calendar_id = 2 [(validate.rules).uint64.gt = 0];
+}
+
+message CreateClassroomV1Response {
+    uint64 classroom_id = 1;
+}
+
+message RemoveClassroomV1Request {
+    uint64 classroom_id = 1 [(validate.rules).uint64.gt = 0];
+}
+
+message RemoveClassroomV1Response {
+    bool found = 1;
+}
+
+message Classroom {
+    uint64 classroom_id = 1 [(validate.rules).uint64.gt = 0];
+
+    uint64 tenant_id = 2 [(validate.rules).uint64.gt = 0];
+    uint64 calendar_id = 3 [(validate.rules).uint64.gt = 0];
+}
