@@ -14,7 +14,7 @@ type Repo interface {
 	DescribeClassroom(ctx context.Context, classroomId uint64) (*models.Classroom, error)
 	AddClassroom(ctx context.Context, classroom models.Classroom) (uint64, error)
 	AddClassrooms(ctx context.Context, classrooms []models.Classroom) error
-	RemoveClassroom(ctx context.Context, classroomId uint64) error
+	RemoveClassroom(ctx context.Context, classroomId uint64) (bool, error)
 }
 
 const tableName = "classrooms"
@@ -109,13 +109,22 @@ func (cr *classroomRepo) AddClassrooms(ctx context.Context, classrooms []models.
 	return err
 }
 
-func (cr *classroomRepo) RemoveClassroom(ctx context.Context, classroomId uint64) error {
+func (cr *classroomRepo) RemoveClassroom(ctx context.Context, classroomId uint64) (bool, error) {
+
 	query := sq.Delete(tableName).
 		Where(sq.Eq{"id": classroomId}).
 		RunWith(cr.db).
 		PlaceholderFormat(sq.Dollar)
 
-	_, err := query.ExecContext(ctx)
+	result, err := query.ExecContext(ctx)
+	if err != nil {
+		return false, err
+	}
 
-	return err
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return rowsAffected > 0, nil
 }

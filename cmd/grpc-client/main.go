@@ -47,7 +47,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Failed to list classrooms")
 		}
 
-		log.Debug().Msgf("Response on CreateClassroom %v", r)
+		log.Debug().Msgf("Response on ListClassroom %v", r)
 
 	case "c":
 		r, err := c.CreateClassroomV1(ctx, &desc.CreateClassroomV1Request{TenantId: 1, CalendarId: 1})
@@ -55,7 +55,7 @@ func main() {
 			log.Fatal().Err(err).Msg("Failed to create classroom")
 		}
 
-		log.Debug().Msgf("Response on ListClassrooms %v", r)
+		log.Debug().Msgf("Response on CreateClassrooms %v", r)
 
 	case "d":
 		r, err := c.DescribeClassroomV1(ctx, &desc.DescribeClassroomV1Request{ClassroomId: 1, Verbose: true})
@@ -66,7 +66,7 @@ func main() {
 		log.Debug().Msgf("Response on DescribeClassroom %v", r)
 
 	case "r":
-		r, err := c.RemoveClassroomV1(ctx, &desc.RemoveClassroomV1Request{ClassroomId: 1})
+		r, err := c.RemoveClassroomV1(ctx, &desc.RemoveClassroomV1Request{ClassroomId: 3})
 		if err != nil {
 			log.Fatal().Err(err).Msg("Failed to remove classroom")
 		}

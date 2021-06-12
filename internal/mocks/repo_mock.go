@@ -95,11 +95,12 @@ func (mr *MockRepoMockRecorder) ListClassrooms(arg0, arg1, arg2 interface{}) *go
 }
 
 // RemoveClassroom mocks base method.
-func (m *MockRepo) RemoveClassroom(arg0 context.Context, arg1 uint64) error {
+func (m *MockRepo) RemoveClassroom(arg0 context.Context, arg1 uint64) (bool, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RemoveClassroom", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RemoveClassroom indicates an expected call of RemoveClassroom.

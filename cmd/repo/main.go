@@ -8,6 +8,7 @@ import (
 
 	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
+
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 )
@@ -87,12 +88,12 @@ func main() {
 
 		case "r":
 			var classroomId uint64 = 2
-			err := classroomRepo.RemoveClassroom(ctx, classroomId)
+			found, err := classroomRepo.RemoveClassroom(ctx, classroomId)
 			if err != nil {
 				log.Error().Err(err).Msgf("Failed to remove classroom with id: %v", classroomId)
 			} else {
 
-				log.Debug().Msgf("Removed classroom with id: %v", classroomId)
+				log.Debug().Msgf("Removed classroom with id: %v %v", classroomId, found)
 			}
 
 		}
