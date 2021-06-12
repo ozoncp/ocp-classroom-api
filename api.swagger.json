@@ -96,12 +96,6 @@
             "required": true,
             "type": "string",
             "format": "uint64"
-          },
-          {
-            "name": "verbose",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
           }
         ],
         "tags": [
@@ -172,9 +166,6 @@
       "properties": {
         "classroom": {
           "$ref": "#/definitions/apiClassroom"
-        },
-        "comment": {
-          "type": "string"
         }
       }
     },

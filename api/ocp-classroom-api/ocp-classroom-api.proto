@@ -49,12 +49,10 @@ message ListClassroomsV1Response {
 
 message DescribeClassroomV1Request {
     uint64 classroom_id = 1 [(validate.rules).uint64.gt = 0];
-    bool verbose = 2;
 }
 
 message DescribeClassroomV1Response {
     Classroom classroom = 1;
-    string comment = 2;
 }
 
 message CreateClassroomV1Request {

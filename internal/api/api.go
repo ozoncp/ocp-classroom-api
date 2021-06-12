@@ -69,7 +69,6 @@ func (a *api) DescribeClassroomV1(ctx context.Context,
 
 	log.Debug().
 		Uint64("ClassroomId", req.ClassroomId).
-		Bool("Verbose", req.Verbose).
 		Msgf("DescribeClassroomV1 call: %v", protoClassroom)
 
 	return &grpcApi.DescribeClassroomV1Response{Classroom: protoClassroom}, nil

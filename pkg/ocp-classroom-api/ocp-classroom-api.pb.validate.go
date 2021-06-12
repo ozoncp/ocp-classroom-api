@@ -206,8 +206,6 @@ func (m *DescribeClassroomV1Request) Validate() error {
 		}
 	}
 
-	// no validation rules for Verbose
-
 	return nil
 }
 
@@ -284,8 +282,6 @@ func (m *DescribeClassroomV1Response) Validate() error {
 			}
 		}
 	}
-
-	// no validation rules for Comment
 
 	return nil
 }
