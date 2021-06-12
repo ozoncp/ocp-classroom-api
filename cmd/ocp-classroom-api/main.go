@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -92,9 +93,11 @@ func doConcurrencyWork() {
 		log.Fatal().Err(err).Msg("Failed to get new Saver instance")
 	}
 
-	mockRepo.EXPECT().AddClassrooms(gomock.Any()).AnyTimes().Return(nil)
+	ctx := context.Background()
 
-	saver.Init()
+	mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).AnyTimes().Return(nil)
+
+	saver.Init(ctx)
 
 	var classroomId uint64 = 0
 

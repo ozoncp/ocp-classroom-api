@@ -1,6 +1,7 @@
 package saver
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -11,7 +12,7 @@ import (
 )
 
 type Saver interface {
-	Init()
+	Init(ctx context.Context)
 	Save(classroom models.Classroom)
 	Close()
 }
@@ -68,7 +69,7 @@ type saver struct {
 	isClosedCh    chan struct{}
 }
 
-func (s *saver) Init() {
+func (s *saver) Init(ctx context.Context) {
 
 	go func() {
 
@@ -81,11 +82,11 @@ func (s *saver) Init() {
 
 			case <-s.ticker.C:
 
-				s.flush()
+				s.flush(ctx)
 
 			case <-s.shouldCloseCh:
 
-				s.flush()
+				s.flush(ctx)
 
 				log.Debug().Str("package", "saver").Msg("closing")
 
@@ -134,8 +135,8 @@ func (s *saver) save(classroom *models.Classroom) {
 	log.Debug().Str("package", "saver").Msgf("saving, classrooms: %v", s.classrooms)
 }
 
-func (s *saver) flush() {
-	s.classrooms = s.flusher.Flush(s.classrooms)
+func (s *saver) flush(ctx context.Context) {
+	s.classrooms = s.flusher.Flush(ctx, s.classrooms)
 
 	log.Debug().Str("package", "saver").Msg("flushing")
 }

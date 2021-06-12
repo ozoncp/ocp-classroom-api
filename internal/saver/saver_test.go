@@ -1,6 +1,7 @@
 package saver_test
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -22,7 +23,8 @@ var _ = Describe("Saver", func() {
 		ctrl     *gomock.Controller
 		mockRepo *mocks.MockRepo
 
-		fl flusher.Flusher
+		ctx context.Context
+		fl  flusher.Flusher
 	)
 
 	BeforeEach(func() {
@@ -30,6 +32,7 @@ var _ = Describe("Saver", func() {
 		ctrl = gomock.NewController(GinkgoT())
 		mockRepo = mocks.NewMockRepo(ctrl)
 
+		ctx = context.Background()
 		fl = flusher.New(mockRepo, chunkSize)
 	})
 
@@ -91,7 +94,7 @@ var _ = Describe("Saver", func() {
 					Expect(svr).ShouldNot(BeNil())
 					Expect(err).ShouldNot(HaveOccurred())
 
-					svr.Init()
+					svr.Init(ctx)
 
 					var wg sync.WaitGroup
 
@@ -99,11 +102,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((classroomsLen + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(gomock.Any()).AnyTimes().Do(func(cr []models.Classroom) {
+					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+						AnyTimes().
+						Do(func(ctx context.Context, cr []models.Classroom) {
 
-						wg.Done()
+							wg.Done()
 
-					}).Return(nil)
+						}).Return(nil)
 
 					for i := 0; i < classroomsLen; i++ {
 
@@ -126,7 +131,7 @@ var _ = Describe("Saver", func() {
 					Expect(svr).ShouldNot(BeNil())
 					Expect(err).ShouldNot(HaveOccurred())
 
-					svr.Init()
+					svr.Init(ctx)
 
 					var wg sync.WaitGroup
 
@@ -134,11 +139,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((classroomsLen - capacity + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(gomock.Any()).AnyTimes().Do(func(cr []models.Classroom) {
+					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+						AnyTimes().
+						Do(func(ctx context.Context, cr []models.Classroom) {
 
-						wg.Done()
+							wg.Done()
 
-					}).Return(nil)
+						}).Return(nil)
 
 					for i := 0; i < classroomsLen; i++ {
 
@@ -158,7 +165,7 @@ var _ = Describe("Saver", func() {
 					Expect(svr).ShouldNot(BeNil())
 					Expect(err).ShouldNot(HaveOccurred())
 
-					svr.Init()
+					svr.Init(ctx)
 
 					var wg sync.WaitGroup
 
@@ -166,11 +173,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((capacity + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(gomock.Any()).AnyTimes().Do(func(cr []models.Classroom) {
+					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+						AnyTimes().
+						Do(func(ctx context.Context, cr []models.Classroom) {
 
-						wg.Done()
+							wg.Done()
 
-					}).Return(nil)
+						}).Return(nil)
 
 					for i := 0; i < classroomsLen; i++ {
 
@@ -196,7 +205,7 @@ var _ = Describe("Saver", func() {
 					Expect(svr).ShouldNot(BeNil())
 					Expect(err).ShouldNot(HaveOccurred())
 
-					svr.Init()
+					svr.Init(ctx)
 
 					var wg sync.WaitGroup
 
@@ -204,11 +213,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((classroomsLen + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(gomock.Any()).AnyTimes().Do(func(cr []models.Classroom) {
+					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+						AnyTimes().
+						Do(func(ctx context.Context, cr []models.Classroom) {
 
-						wg.Done()
+							wg.Done()
 
-					}).Return(nil)
+						}).Return(nil)
 
 					for i := 0; i < classroomsLen; i++ {
 
