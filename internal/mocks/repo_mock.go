@@ -35,6 +35,21 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 	return m.recorder
 }
 
+// AddClassroom mocks base method.
+func (m *MockRepo) AddClassroom(arg0 context.Context, arg1 models.Classroom) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddClassroom", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddClassroom indicates an expected call of AddClassroom.
+func (mr *MockRepoMockRecorder) AddClassroom(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClassroom", reflect.TypeOf((*MockRepo)(nil).AddClassroom), arg0, arg1)
+}
+
 // AddClassrooms mocks base method.
 func (m *MockRepo) AddClassrooms(arg0 context.Context, arg1 []models.Classroom) error {
 	m.ctrl.T.Helper()

@@ -5,10 +5,10 @@ import (
 )
 
 type Classroom struct {
-	Id uint64
+	Id uint64 `db:"id"`
 
-	TenantId   uint64
-	CalendarId uint64
+	TenantId   uint64 `db:"tenant_id"`
+	CalendarId uint64 `db:"calendar_id"`
 }
 
 func (cr *Classroom) String() (str string) {
