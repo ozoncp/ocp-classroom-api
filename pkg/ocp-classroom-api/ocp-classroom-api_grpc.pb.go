@@ -22,8 +22,12 @@ type OcpClassroomApiClient interface {
 	ListClassroomsV1(ctx context.Context, in *ListClassroomsV1Request, opts ...grpc.CallOption) (*ListClassroomsV1Response, error)
 	// Возвращает описание учебной комнаты по ее идентификатору
 	DescribeClassroomV1(ctx context.Context, in *DescribeClassroomV1Request, opts ...grpc.CallOption) (*DescribeClassroomV1Response, error)
-	// Создает новую учебную комнату
+	// Создает учебную комнату
 	CreateClassroomV1(ctx context.Context, in *CreateClassroomV1Request, opts ...grpc.CallOption) (*CreateClassroomV1Response, error)
+	// Создает множество учебных комнат
+	MultiCreateClassroomV1(ctx context.Context, in *MultiCreateClassroomV1Request, opts ...grpc.CallOption) (*MultiCreateClassroomV1Response, error)
+	// Обновляет данные в учебной комнате
+	UpdateClassroomV1(ctx context.Context, in *UpdateClassroomV1Request, opts ...grpc.CallOption) (*UpdateClassroomV1Response, error)
 	// Удаляет учебную комнату по её идентификатору
 	RemoveClassroomV1(ctx context.Context, in *RemoveClassroomV1Request, opts ...grpc.CallOption) (*RemoveClassroomV1Response, error)
 }
@@ -63,6 +67,24 @@ func (c *ocpClassroomApiClient) CreateClassroomV1(ctx context.Context, in *Creat
 	return out, nil
 }
 
+func (c *ocpClassroomApiClient) MultiCreateClassroomV1(ctx context.Context, in *MultiCreateClassroomV1Request, opts ...grpc.CallOption) (*MultiCreateClassroomV1Response, error) {
+	out := new(MultiCreateClassroomV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/MultiCreateClassroomV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *ocpClassroomApiClient) UpdateClassroomV1(ctx context.Context, in *UpdateClassroomV1Request, opts ...grpc.CallOption) (*UpdateClassroomV1Response, error) {
+	out := new(UpdateClassroomV1Response)
+	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/UpdateClassroomV1", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *ocpClassroomApiClient) RemoveClassroomV1(ctx context.Context, in *RemoveClassroomV1Request, opts ...grpc.CallOption) (*RemoveClassroomV1Response, error) {
 	out := new(RemoveClassroomV1Response)
 	err := c.cc.Invoke(ctx, "/ocp.classroom.api.OcpClassroomApi/RemoveClassroomV1", in, out, opts...)
@@ -80,8 +102,12 @@ type OcpClassroomApiServer interface {
 	ListClassroomsV1(context.Context, *ListClassroomsV1Request) (*ListClassroomsV1Response, error)
 	// Возвращает описание учебной комнаты по ее идентификатору
 	DescribeClassroomV1(context.Context, *DescribeClassroomV1Request) (*DescribeClassroomV1Response, error)
-	// Создает новую учебную комнату
+	// Создает учебную комнату
 	CreateClassroomV1(context.Context, *CreateClassroomV1Request) (*CreateClassroomV1Response, error)
+	// Создает множество учебных комнат
+	MultiCreateClassroomV1(context.Context, *MultiCreateClassroomV1Request) (*MultiCreateClassroomV1Response, error)
+	// Обновляет данные в учебной комнате
+	UpdateClassroomV1(context.Context, *UpdateClassroomV1Request) (*UpdateClassroomV1Response, error)
 	// Удаляет учебную комнату по её идентификатору
 	RemoveClassroomV1(context.Context, *RemoveClassroomV1Request) (*RemoveClassroomV1Response, error)
 	mustEmbedUnimplementedOcpClassroomApiServer()
@@ -99,6 +125,12 @@ func (UnimplementedOcpClassroomApiServer) DescribeClassroomV1(context.Context, *
 }
 func (UnimplementedOcpClassroomApiServer) CreateClassroomV1(context.Context, *CreateClassroomV1Request) (*CreateClassroomV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateClassroomV1 not implemented")
+}
+func (UnimplementedOcpClassroomApiServer) MultiCreateClassroomV1(context.Context, *MultiCreateClassroomV1Request) (*MultiCreateClassroomV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MultiCreateClassroomV1 not implemented")
+}
+func (UnimplementedOcpClassroomApiServer) UpdateClassroomV1(context.Context, *UpdateClassroomV1Request) (*UpdateClassroomV1Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateClassroomV1 not implemented")
 }
 func (UnimplementedOcpClassroomApiServer) RemoveClassroomV1(context.Context, *RemoveClassroomV1Request) (*RemoveClassroomV1Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveClassroomV1 not implemented")
@@ -170,6 +202,42 @@ func _OcpClassroomApi_CreateClassroomV1_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OcpClassroomApi_MultiCreateClassroomV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MultiCreateClassroomV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpClassroomApiServer).MultiCreateClassroomV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.classroom.api.OcpClassroomApi/MultiCreateClassroomV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpClassroomApiServer).MultiCreateClassroomV1(ctx, req.(*MultiCreateClassroomV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _OcpClassroomApi_UpdateClassroomV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateClassroomV1Request)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OcpClassroomApiServer).UpdateClassroomV1(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/ocp.classroom.api.OcpClassroomApi/UpdateClassroomV1",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OcpClassroomApiServer).UpdateClassroomV1(ctx, req.(*UpdateClassroomV1Request))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OcpClassroomApi_RemoveClassroomV1_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveClassroomV1Request)
 	if err := dec(in); err != nil {
@@ -206,6 +274,14 @@ var OcpClassroomApi_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateClassroomV1",
 			Handler:    _OcpClassroomApi_CreateClassroomV1_Handler,
+		},
+		{
+			MethodName: "MultiCreateClassroomV1",
+			Handler:    _OcpClassroomApi_MultiCreateClassroomV1_Handler,
+		},
+		{
+			MethodName: "UpdateClassroomV1",
+			Handler:    _OcpClassroomApi_UpdateClassroomV1_Handler,
 		},
 		{
 			MethodName: "RemoveClassroomV1",

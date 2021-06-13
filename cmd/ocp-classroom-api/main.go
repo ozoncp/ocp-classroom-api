@@ -95,7 +95,8 @@ func doConcurrencyWork() {
 
 	ctx := context.Background()
 
-	mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).AnyTimes().Return(nil)
+	// TODO: replace mock by real repo
+	mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).AnyTimes().Return(uint64(0), nil)
 
 	saver.Init(ctx)
 
@@ -112,6 +113,7 @@ func doConcurrencyWork() {
 
 		if cmd == "s" {
 
+			// TODO: replace filling data such way by user input
 			classroomId++
 
 			saver.Save(models.Classroom{Id: classroomId, TenantId: classroomId, CalendarId: classroomId})

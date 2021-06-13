@@ -79,7 +79,7 @@ var _ = Describe("Flusher", func() {
 
 			It("flushes successfully", func() {
 
-				mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Times(3).Return(nil)
+				mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Times(3).Return(uint64(0), nil)
 
 				remainingClassrooms := fl.Flush(ctx, classrooms)
 
@@ -89,8 +89,8 @@ var _ = Describe("Flusher", func() {
 			It("can not flush fully", func() {
 
 				gomock.InOrder(
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(nil),
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(errors.New("can not add classrooms")),
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Return(uint64(0), nil),
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Return(uint64(0), errors.New("can not add classrooms")),
 				)
 
 				remainingClassrooms := fl.Flush(ctx, classrooms)
@@ -100,7 +100,7 @@ var _ = Describe("Flusher", func() {
 
 			It("can not flush anything", func() {
 
-				mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(errors.New("can not add classrooms"))
+				mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Return(uint64(0), errors.New("can not add classrooms"))
 
 				remainingClassrooms := fl.Flush(ctx, classrooms)
 

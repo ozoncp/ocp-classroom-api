@@ -8,10 +8,15 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
+
+// TODO: comment everything here
+
+const chunkSize int = 5
 
 type api struct {
 	grpcApi.UnimplementedOcpClassroomApiServer
@@ -99,6 +104,50 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 		Msgf("CreateClassroomV1 call: %v", classroomId)
 
 	return &grpcApi.CreateClassroomV1Response{ClassroomId: classroomId}, nil
+}
+
+func (a *api) MultiAddClassroom(ctx context.Context,
+	req *grpcApi.MultiCreateClassroomV1Request) (*grpcApi.MultiCreateClassroomV1Response, error) {
+
+	if err := req.Validate(); err != nil {
+
+		log.Error().Err(err).Msg("Request failed validation")
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	var classrooms []models.Classroom
+	for _, protoClassroom := range req.Classrooms {
+
+		classrooms = append(classrooms, models.Classroom{
+			TenantId:   protoClassroom.TenantId,
+			CalendarId: protoClassroom.CalendarId,
+		})
+	}
+
+	fl := flusher.New(a.classroomRepo, chunkSize)
+
+	// TODO: change func signature to return count and error
+	fl.Flush(ctx, classrooms)
+
+	log.Debug().
+		Interface("Request", req.Classrooms).
+		Msgf("MultiCreateClassroomV1 call: %v", req.Classrooms)
+
+	return nil, nil
+}
+
+func (a *api) UpdateClassroom(ctx context.Context,
+	req *grpcApi.UpdateClassroomV1Request) (*grpcApi.UpdateClassroomV1Response, error) {
+
+	if err := req.Validate(); err != nil {
+
+		log.Error().Err(err).Msg("Request failed validation")
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+
+	// TODO: implement this
+
+	return nil, nil
 }
 
 func (a *api) RemoveClassroomV1(ctx context.Context,

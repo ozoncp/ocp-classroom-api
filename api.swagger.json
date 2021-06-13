@@ -50,13 +50,13 @@
         ]
       },
       "post": {
-        "summary": "Создает новую учебную комнату",
-        "operationId": "OcpClassroomApi_CreateClassroomV1",
+        "summary": "Обновляет данные в учебной комнате",
+        "operationId": "OcpClassroomApi_UpdateClassroomV1",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/apiCreateClassroomV1Response"
+              "$ref": "#/definitions/apiUpdateClassroomV1Response"
             }
           },
           "default": {
@@ -152,6 +152,19 @@
         }
       }
     },
+    "apiCreateClassroomV1Request": {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "calendar_id": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "apiCreateClassroomV1Response": {
       "type": "object",
       "properties": {
@@ -180,7 +193,24 @@
         }
       }
     },
+    "apiMultiCreateClassroomV1Response": {
+      "type": "object",
+      "properties": {
+        "created_count": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "apiRemoveClassroomV1Response": {
+      "type": "object",
+      "properties": {
+        "found": {
+          "type": "boolean"
+        }
+      }
+    },
+    "apiUpdateClassroomV1Response": {
       "type": "object",
       "properties": {
         "found": {

@@ -9,11 +9,14 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 )
 
+// TODO: comment everything here
+
 type Repo interface {
 	ListClassrooms(ctx context.Context, limit, offset uint64) ([]models.Classroom, error)
 	DescribeClassroom(ctx context.Context, classroomId uint64) (*models.Classroom, error)
 	AddClassroom(ctx context.Context, classroom models.Classroom) (uint64, error)
-	AddClassrooms(ctx context.Context, classrooms []models.Classroom) error
+	MultiAddClassroom(ctx context.Context, classrooms []models.Classroom) (uint64, error)
+	UpdateClassroom(ctx context.Context, classroom models.Classroom) (bool, error)
 	RemoveClassroom(ctx context.Context, classroomId uint64) (bool, error)
 }
 
@@ -93,7 +96,7 @@ func (cr *classroomRepo) AddClassroom(ctx context.Context, classroom models.Clas
 	return classroom.Id, nil
 }
 
-func (cr *classroomRepo) AddClassrooms(ctx context.Context, classrooms []models.Classroom) error {
+func (cr *classroomRepo) MultiAddClassroom(ctx context.Context, classrooms []models.Classroom) (uint64, error) {
 
 	query := sq.Insert(tableName).
 		Columns("tenant_id", "calendar_id").
@@ -104,9 +107,39 @@ func (cr *classroomRepo) AddClassrooms(ctx context.Context, classrooms []models.
 		query = query.Values(classroom.TenantId, classroom.CalendarId)
 	}
 
-	_, err := query.ExecContext(ctx)
+	result, err := query.ExecContext(ctx)
+	if err != nil {
+		return 0, err
+	}
 
-	return err
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return uint64(rowsAffected), nil
+}
+
+func (cr *classroomRepo) UpdateClassroom(ctx context.Context, classroom models.Classroom) (bool, error) {
+
+	query := sq.Update(tableName).
+		Set("tenant_id", classroom.TenantId).
+		Set("calendar_id", classroom.CalendarId).
+		Where(sq.Eq{"id": classroom.Id}).
+		RunWith(cr.db).
+		PlaceholderFormat(sq.Dollar)
+
+	result, err := query.ExecContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+
+	return rowsAffected > 0, nil
 }
 
 func (cr *classroomRepo) RemoveClassroom(ctx context.Context, classroomId uint64) (bool, error) {

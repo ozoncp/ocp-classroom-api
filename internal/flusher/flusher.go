@@ -8,6 +8,8 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 )
 
+// TODO: comment everything here
+
 type Flusher interface {
 	Flush(ctx context.Context, classrooms []models.Classroom) []models.Classroom
 }
@@ -31,7 +33,7 @@ func (fl *flusher) Flush(ctx context.Context, classrooms []models.Classroom) []m
 
 	for i, chunk := range chunks {
 
-		if err := fl.repo.AddClassrooms(ctx, chunk); err != nil {
+		if _, err := fl.repo.MultiAddClassroom(ctx, chunk); err != nil {
 			return classrooms[fl.chunkSize*i:]
 		}
 	}

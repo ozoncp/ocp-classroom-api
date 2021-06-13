@@ -11,6 +11,8 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// TODO: comment everything here
+
 type Saver interface {
 	Init(ctx context.Context)
 	Save(classroom models.Classroom)

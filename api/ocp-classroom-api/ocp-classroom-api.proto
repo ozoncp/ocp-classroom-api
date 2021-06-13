@@ -23,8 +23,22 @@ service OcpClassroomApi {
         };
     }
 
-    // Создает новую учебную комнату
+    // Создает учебную комнату
     rpc CreateClassroomV1(CreateClassroomV1Request) returns (CreateClassroomV1Response) {
+        option (google.api.http) = {
+            post: "/v1/classrooms"
+        };
+    }
+
+    // Создает множество учебных комнат
+    rpc MultiCreateClassroomV1(MultiCreateClassroomV1Request) returns (MultiCreateClassroomV1Response) {
+        option (google.api.http) = {
+            post: "/v1/classrooms"
+        };
+    }
+
+    // Обновляет данные в учебной комнате
+    rpc UpdateClassroomV1(UpdateClassroomV1Request) returns (UpdateClassroomV1Response) {
         option (google.api.http) = {
             post: "/v1/classrooms"
         };
@@ -62,6 +76,22 @@ message CreateClassroomV1Request {
 
 message CreateClassroomV1Response {
     uint64 classroom_id = 1;
+}
+
+message MultiCreateClassroomV1Request {
+    repeated CreateClassroomV1Request classrooms = 1;
+}
+
+message MultiCreateClassroomV1Response {
+    uint64 created_count = 1;
+}
+
+message UpdateClassroomV1Request {
+    Classroom classroom = 1;
+}
+
+message UpdateClassroomV1Response {
+    bool found = 1;
 }
 
 message RemoveClassroomV1Request {
