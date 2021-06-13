@@ -2,9 +2,9 @@ package repo
 
 import (
 	"context"
+	"database/sql"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 )
@@ -20,10 +20,10 @@ type Repo interface {
 const tableName = "classrooms"
 
 type classroomRepo struct {
-	db *sqlx.DB
+	db *sql.DB
 }
 
-func New(db *sqlx.DB) Repo {
+func New(db *sql.DB) Repo {
 
 	return &classroomRepo{db: db}
 }
@@ -50,7 +50,7 @@ func (cr *classroomRepo) ListClassrooms(ctx context.Context, limit, offset uint6
 		err = rows.Scan(&classroom.Id, &classroom.TenantId, &classroom.CalendarId)
 
 		if err != nil {
-			continue
+			return nil, err
 		}
 
 		classrooms = append(classrooms, classroom)

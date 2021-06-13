@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"flag"
 	"net"
 
 	"github.com/rs/zerolog/log"
 
 	_ "github.com/jackc/pgx/stdlib"
-	"github.com/jmoiron/sqlx"
 
 	"google.golang.org/grpc"
 
@@ -21,9 +22,13 @@ func getClassroomRepo() *repo.Repo {
 	const dbName = "ozon"
 	const address = "postgres://postgres:postgres@localhost:5432/" + dbName + "?sslmode=disable"
 
-	db, err := sqlx.Connect("pgx", address)
+	db, err := sql.Open("pgx", address)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to postgres")
+		log.Fatal().Err(err).Msg("Failed to open postgres")
+	}
+
+	if err := db.PingContext(context.Background()); err != nil {
+		log.Fatal().Err(err).Msg("Failed to ping postgres")
 	}
 
 	log.Debug().Msgf("Connected to DB %v", dbName)

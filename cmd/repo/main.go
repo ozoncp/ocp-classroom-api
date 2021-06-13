@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
 
 	_ "github.com/jackc/pgx/stdlib"
-	"github.com/jmoiron/sqlx"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
@@ -26,16 +26,22 @@ func main() {
 	const address = "postgres://postgres:postgres@localhost:5432/" + dbName + "?sslmode=disable"
 	//const address = "user=postgres dbname=exampledb sslmode=verify-full password=postgres"
 
-	db, err := sqlx.Connect("pgx", address)
+	ctx := context.Background()
+
+	db, err := sql.Open("pgx", address)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect to postgres")
+		log.Fatal().Err(err).Msg("Failed to open postgres")
+	}
+
+	defer db.Close()
+
+	if err := db.PingContext(ctx); err != nil {
+		log.Fatal().Err(err).Msg("Failed to ping postgres")
 	}
 
 	log.Debug().Msgf("Connected to DB %v", dbName)
 
 	classroomRepo := repo.New(db)
-
-	ctx := context.Background()
 
 	for {
 
