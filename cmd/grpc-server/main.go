@@ -54,7 +54,7 @@ func main() {
 	s := grpc.NewServer()
 	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi(*getClassroomRepo()))
 
-	log.Info().Str("gRPC server endpoint", *grpcEndpoint).Msg("Server listening")
+	log.Debug().Str("gRPC server endpoint", *grpcEndpoint).Msg("Server listening")
 	if err := s.Serve(listen); err != nil {
 		log.Fatal().Err(err).Msg("Failed to serve")
 	}

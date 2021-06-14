@@ -8,6 +8,8 @@ import (
 
 	"github.com/rs/zerolog/log"
 
+	"github.com/ozoncp/ocp-classroom-api/internal/models"
+	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 	"google.golang.org/grpc"
 )
@@ -32,7 +34,7 @@ func main() {
 	c := desc.NewOcpClassroomApiClient(conn)
 
 	var cmd string
-	fmt.Print("What to do? ('l' - List, 'c' - Create, 'd' - Describe', 'r' - Remove): ")
+	fmt.Print("What to do? ('l' - List, 'c' - Create, 'mc' - MultiCreate, 'd' - Describe', 'u' - Update, 'r' - Remove): ")
 	fmt.Scan(&cmd)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
@@ -42,56 +44,139 @@ func main() {
 
 	case "l":
 
-		var limit uint64
-		var offset uint64
-		fmt.Print("Enter the limit and offset: ")
-		fmt.Scan(&limit, &offset)
+		func() {
 
-		r, err := c.ListClassroomsV1(ctx, &desc.ListClassroomsV1Request{Limit: limit, Offset: offset})
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to list classrooms")
-		}
+			var limit uint64
+			var offset uint64
+			fmt.Print("Enter the limit and offset: ")
+			fmt.Scan(&limit, &offset)
 
-		log.Debug().Msgf("Response on ListClassroom %v", r)
+			req := &desc.ListClassroomsV1Request{Limit: limit, Offset: offset}
+			var res *desc.ListClassroomsV1Response
+			var err error
+
+			defer utils.LogGrpcCall("ListClassroomsV1 call", &req, &res, &err)
+
+			res, err = c.ListClassroomsV1(ctx, req)
+			if err != nil {
+				return
+			}
+		}()
 
 	case "c":
 
-		var tenant_id uint64
-		var calendar_id uint64
-		fmt.Print("Enter tenant_id and calendar_id: ")
-		fmt.Scan(&tenant_id, &calendar_id)
+		func() {
 
-		r, err := c.CreateClassroomV1(ctx, &desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id})
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to create classroom")
-		}
+			var tenant_id uint64
+			var calendar_id uint64
+			fmt.Print("Enter tenant_id and calendar_id: ")
+			fmt.Scan(&tenant_id, &calendar_id)
 
-		log.Debug().Msgf("Response on CreateClassrooms %v", r)
+			req := &desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id}
+			var res *desc.CreateClassroomV1Response
+			var err error
+
+			defer utils.LogGrpcCall("CreateClassroomV1 call", &req, &res, &err)
+
+			res, err = c.CreateClassroomV1(ctx, req)
+			if err != nil {
+				return
+			}
+		}()
+
+	case "mc":
+
+		func() {
+
+			var count int
+			fmt.Print("Enter count: ")
+			fmt.Scan(&count)
+
+			if count < 1 {
+				log.Fatal().Msg("Count can not be less 1")
+			}
+
+			req := &desc.MultiCreateClassroomV1Request{}
+			var res *desc.MultiCreateClassroomV1Response
+			var err error
+
+			defer utils.LogGrpcCall("MultiCreateClassroomV1 call", &req, &res, &err)
+
+			for i := 0; i < count; i++ {
+
+				var tenant_id uint64
+				var calendar_id uint64
+				fmt.Print("Enter tenant_id and calendar_id: ")
+				fmt.Scan(&tenant_id, &calendar_id)
+
+				req.Classrooms = append(req.Classrooms,
+					&desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id})
+			}
+
+			res, err = c.MultiCreateClassroomV1(ctx, req)
+			if err != nil {
+				return
+			}
+		}()
 
 	case "d":
 
-		var classroom_id uint64
-		fmt.Print("Enter classroom_id: ")
-		fmt.Scan(&classroom_id)
+		func() {
 
-		r, err := c.DescribeClassroomV1(ctx, &desc.DescribeClassroomV1Request{ClassroomId: classroom_id})
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to describe classroom")
-		}
+			var classroom_id uint64
+			fmt.Print("Enter classroom_id: ")
+			fmt.Scan(&classroom_id)
 
-		log.Debug().Msgf("Response on DescribeClassroom %v", r)
+			req := &desc.DescribeClassroomV1Request{ClassroomId: classroom_id}
+			var res *desc.DescribeClassroomV1Response
+			var err error
+
+			defer utils.LogGrpcCall("DescribeClassroomV1 call", &req, &res, &err)
+
+			res, err = c.DescribeClassroomV1(ctx, req)
+			if err != nil {
+				return
+			}
+		}()
+
+	case "u":
+
+		func() {
+
+			var classroom models.Classroom
+			fmt.Print("Enter classroom_id, tenant_id and calendar_id: ")
+			fmt.Scan(&classroom.Id, &classroom.TenantId, &classroom.CalendarId)
+
+			req := &desc.UpdateClassroomV1Request{Classroom: classroom.ToProtoClassroom()}
+			var res *desc.UpdateClassroomV1Response
+			var err error
+
+			defer utils.LogGrpcCall("UpdateClassroomV1 call", &req, &res, &err)
+
+			res, err = c.UpdateClassroomV1(ctx, req)
+			if err != nil {
+				return
+			}
+		}()
 
 	case "r":
 
-		var classroom_id uint64
-		fmt.Print("Enter classroom_id: ")
-		fmt.Scan(&classroom_id)
+		func() {
 
-		r, err := c.RemoveClassroomV1(ctx, &desc.RemoveClassroomV1Request{ClassroomId: classroom_id})
-		if err != nil {
-			log.Fatal().Err(err).Msg("Failed to remove classroom")
-		}
+			var classroom_id uint64
+			fmt.Print("Enter classroom_id: ")
+			fmt.Scan(&classroom_id)
 
-		log.Debug().Msgf("Response on RemoveClassroom %v", r)
+			req := &desc.RemoveClassroomV1Request{ClassroomId: classroom_id}
+			var res *desc.RemoveClassroomV1Response
+			var err error
+
+			defer utils.LogGrpcCall("RemoveClassroomV1 call", &req, &res, &err)
+
+			res, err = c.RemoveClassroomV1(ctx, req)
+			if err != nil {
+				return
+			}
+		}()
 	}
 }

@@ -97,7 +97,7 @@ func main() {
 
 		case "u":
 			// TODO: add user input
-			classroom := models.Classroom{Id: 8, TenantId: 66, CalendarId: 66}
+			classroom := models.Classroom{Id: 1, TenantId: 66, CalendarId: 66}
 			found, err := classroomRepo.UpdateClassroom(ctx, classroom)
 			if err != nil {
 				log.Error().Err(err).Msgf("Failed to update classroom with id: %v", classroom.Id)
