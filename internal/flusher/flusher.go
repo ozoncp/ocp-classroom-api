@@ -12,21 +12,23 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 )
 
-// TODO: comment everything here
-
+// Flusher is utility that flushes classrooms to any storage and provides tracing
 type Flusher interface {
 	Flush(ctx context.Context, span opentracing.Span, classrooms []models.Classroom) []models.Classroom
 }
 
+// flusher is implementation of Flusher interface that flushes classrooms to DB and split huge slices to small chunks
 type flusher struct {
 	repo      repo.Repo
 	chunkSize int
 }
 
+// New returns flusher instance for flushing classrooms to DB
 func New(repo repo.Repo, chunkSize int) *flusher {
 	return &flusher{repo: repo, chunkSize: chunkSize}
 }
 
+// Flush flushes classrooms to DB by small chunks and provides tracing
 func (fl *flusher) Flush(ctx context.Context, span opentracing.Span, classrooms []models.Classroom) []models.Classroom {
 
 	chunks, err := utils.SplitSlice(classrooms, fl.chunkSize)

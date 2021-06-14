@@ -2,60 +2,40 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"flag"
 	"net"
 
 	"github.com/rs/zerolog/log"
 
-	_ "github.com/jackc/pgx/stdlib"
-
 	"google.golang.org/grpc"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/api"
-	"github.com/ozoncp/ocp-classroom-api/internal/repo"
+	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 
 	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
-func getClassroomRepo() *repo.Repo {
-	const dbName = "ozon"
-	const address = "postgres://postgres:postgres@localhost:5432/" + dbName + "?sslmode=disable"
-
-	db, err := sql.Open("pgx", address)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to open postgres")
-	}
-
-	if err := db.PingContext(context.Background()); err != nil {
-		log.Fatal().Err(err).Msg("Failed to ping postgres")
-	}
-
-	log.Debug().Msgf("Connected to DB %v", dbName)
-
-	classroomRepo := repo.New(db)
-
-	return &classroomRepo
-}
+const logPrefix = "gRPC server: "
 
 func main() {
+
+	log.Debug().Msg(logPrefix + "started")
 
 	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
 
 	flag.Parse()
 
-	log.Debug().Msg("doGrpcServerWork...")
-
 	listen, err := net.Listen("tcp", *grpcEndpoint)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to listen")
+		log.Fatal().Err(err).Msg(logPrefix + "failed to listen")
 	}
 
 	s := grpc.NewServer()
-	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi(*getClassroomRepo()))
+	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi(*utils.GetConnectedRepo(context.Background())))
 
-	log.Debug().Str("gRPC server endpoint", *grpcEndpoint).Msg("Server listening")
+	log.Debug().Str("endpoint", *grpcEndpoint).Msg(logPrefix + "is listening")
+
 	if err := s.Serve(listen); err != nil {
-		log.Fatal().Err(err).Msg("Failed to serve")
+		log.Fatal().Err(err).Msg(logPrefix + "failed to serve")
 	}
 }

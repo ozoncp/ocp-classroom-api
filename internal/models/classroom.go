@@ -38,3 +38,13 @@ func FromProtoClassroom(protoClassroom *grpcApi.Classroom) *Classroom {
 		CalendarId: protoClassroom.CalendarId,
 	}
 }
+
+func FromFmtScan() *Classroom {
+
+	var tenant_id uint64
+	var calendar_id uint64
+	fmt.Print("Enter tenant_id and calendar_id: ")
+	fmt.Scan(&tenant_id, &calendar_id)
+
+	return &Classroom{TenantId: tenant_id, CalendarId: calendar_id}
+}

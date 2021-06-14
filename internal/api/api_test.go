@@ -582,6 +582,4 @@ var _ = Describe("Api", func() {
 			})
 		})
 	})
-
-	// TODO: add Update and MultiCreate tests
 })

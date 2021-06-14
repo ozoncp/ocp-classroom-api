@@ -16,16 +16,16 @@ import (
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
-// TODO: comment everything here
-
 // chunkSize is used for MultiCreateClassroomV1
 const chunkSize int = 5
 
+// api implements gRPC server and operates with DB
 type api struct {
 	grpcApi.UnimplementedOcpClassroomApiServer
 	classroomRepo repo.Repo
 }
 
+// ListClassroomsV1 returns list of classrooms from DB
 func (a *api) ListClassroomsV1(ctx context.Context,
 	req *grpcApi.ListClassroomsV1Request) (res *grpcApi.ListClassroomsV1Response, err error) {
 
@@ -54,6 +54,7 @@ func (a *api) ListClassroomsV1(ctx context.Context,
 	return res, nil
 }
 
+// DescribeClassroomV1 returns classroom from DB requested by id
 func (a *api) DescribeClassroomV1(ctx context.Context,
 	req *grpcApi.DescribeClassroomV1Request) (res *grpcApi.DescribeClassroomV1Response, err error) {
 
@@ -78,6 +79,7 @@ func (a *api) DescribeClassroomV1(ctx context.Context,
 	return res, nil
 }
 
+// CreateClassroomV1 returns id of created classroom in DB by passed tenant_id and calendar_id
 func (a *api) CreateClassroomV1(ctx context.Context,
 	req *grpcApi.CreateClassroomV1Request) (res *grpcApi.CreateClassroomV1Response, err error) {
 
@@ -103,6 +105,7 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 	return res, nil
 }
 
+// MultiCreateClassroomV1 returns count of created classrooms in DB by passed list of tenant_id and calendar_id
 func (a *api) MultiCreateClassroomV1(ctx context.Context,
 	req *grpcApi.MultiCreateClassroomV1Request) (res *grpcApi.MultiCreateClassroomV1Response, err error) {
 
@@ -141,6 +144,8 @@ func (a *api) MultiCreateClassroomV1(ctx context.Context,
 	return res, nil
 }
 
+// UpdateClassroomV1 changes classroom in DB by passed id and new tenant_id and calendar_id
+// and returns whether classroom was changed
 func (a *api) UpdateClassroomV1(ctx context.Context,
 	req *grpcApi.UpdateClassroomV1Request) (res *grpcApi.UpdateClassroomV1Response, err error) {
 
@@ -165,6 +170,7 @@ func (a *api) UpdateClassroomV1(ctx context.Context,
 	return res, nil
 }
 
+// RemoveClassroomV1 removes classroom from DB by passed id and returs whether classroom was removed
 func (a *api) RemoveClassroomV1(ctx context.Context,
 	req *grpcApi.RemoveClassroomV1Request) (res *grpcApi.RemoveClassroomV1Response, err error) {
 
@@ -187,6 +193,7 @@ func (a *api) RemoveClassroomV1(ctx context.Context,
 	return res, nil
 }
 
+// NewOcpClassroomApi returns implementation of OcpClassroomApiServer interface to operate DB
 func NewOcpClassroomApi(classroomRepo repo.Repo) grpcApi.OcpClassroomApiServer {
 	return &api{classroomRepo: classroomRepo}
 }

@@ -8,13 +8,10 @@ import (
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/golang/mock/gomock"
-	"github.com/onsi/ginkgo"
-
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
-	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/saver"
+	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 )
 
 func main() {
@@ -26,16 +23,11 @@ func main() {
 	fmt.Scan(&cmd)
 	fmt.Println()
 
-	log.Debug().Int("cmd", cmd).Send()
-
-	if cmd == 0 {
-
+	switch cmd {
+	case 0:
 		doConcurrencyWork()
-
-	} else if cmd == 1 {
-
+	case 1:
 		doFileWork()
-
 	}
 }
 
@@ -45,19 +37,21 @@ func introduce() {
 
 func doFileWork() {
 
-	log.Debug().Msg("doFileWork...")
+	const logPrefix = "FileWork: "
+
+	log.Debug().Msg(logPrefix + "started")
 
 	openReadCloseFile := func(i int) {
 
 		file, err := os.Open("hello.txt")
 
 		if err != nil {
-			log.Fatal().Err(err).Msg("Unable to create file")
+			log.Fatal().Err(err).Msg(logPrefix + "failed to create file")
 		}
 
 		defer func() {
 			file.Close()
-			log.Info().Msg("Closing file for " + fmt.Sprint(i+1) + " th time")
+			log.Debug().Msgf(logPrefix+"is closing file for %vth time", i+1)
 		}()
 
 		var bytes []byte = make([]byte, 1024)
@@ -65,10 +59,10 @@ func doFileWork() {
 
 		bytesCount, err = file.Read(bytes)
 
-		log.Info().Str("File", string(bytes[:bytesCount])).Msg("Reading file for" + fmt.Sprint(i+1) + "th time")
+		log.Debug().Str("File", string(bytes[:bytesCount])).Msgf(logPrefix+"is reading file for %vth time", i+1)
 
 		if err != nil {
-			log.Fatal().Err(err).Msg("Unable to write to file")
+			log.Fatal().Err(err).Msg(logPrefix + "failed to write to file")
 		}
 	}
 
@@ -82,49 +76,41 @@ func doFileWork() {
 
 func doConcurrencyWork() {
 
-	log.Debug().Msg("doConcurrencyWork...")
+	const logPrefix = "ConcurrencyWork: "
 
-	ctrl := gomock.NewController(ginkgo.GinkgoT())
-	mockRepo := mocks.NewMockRepo(ctrl)
-
-	saver, err := saver.New(5, saver.Policy_DropAll, time.Second*15, flusher.New(mockRepo, 3))
-
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to get new Saver instance")
-	}
+	log.Debug().Msg(logPrefix + "started")
 
 	ctx := context.Background()
 
-	// TODO: replace mock by real repo
-	mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).AnyTimes().Return(uint64(0), nil)
+	saver, err := saver.New(5, saver.Policy_DropAll, time.Second*15, flusher.New(*utils.GetConnectedRepo(ctx), 3))
+	if err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "Failed to get new Saver instance")
+	}
 
 	saver.Init(ctx)
-
-	var classroomId uint64 = 0
+	defer saver.Close()
 
 	for {
 
-		fmt.Print("Enter the command ('s' - save, 'x' - exit): ")
-
 		var cmd string
+		fmt.Print("Enter the command ('s' - save, 'x' - exit): ")
 		fmt.Scan(&cmd)
-
-		log.Debug().Str("cmd", cmd).Send()
 
 		if cmd == "s" {
 
-			// TODO: replace filling data such way by user input
-			classroomId++
+			classroom := *models.FromFmtScan()
 
-			saver.Save(models.Classroom{Id: classroomId, TenantId: classroomId, CalendarId: classroomId})
+			saver.Save(classroom)
+
+			log.Debug().Msg(logPrefix + "saved")
 
 		} else if cmd == "x" {
+
+			log.Debug().Msg(logPrefix + "finished")
 
 			break
 		}
 
 		time.Sleep(time.Millisecond * 100)
 	}
-
-	saver.Close()
 }

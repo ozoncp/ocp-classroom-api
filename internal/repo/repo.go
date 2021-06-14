@@ -9,8 +9,7 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 )
 
-// TODO: comment everything here
-
+// Repo is interface of classrooms' storage
 type Repo interface {
 	ListClassrooms(ctx context.Context, limit, offset uint64) ([]models.Classroom, error)
 	DescribeClassroom(ctx context.Context, classroomId uint64) (*models.Classroom, error)
@@ -20,17 +19,21 @@ type Repo interface {
 	RemoveClassroom(ctx context.Context, classroomId uint64) (bool, error)
 }
 
+// tableName is name of table in PostgreSQL DB
 const tableName = "classrooms"
 
+// classroomRepo is implementation of Repo interface that uses DB for storage
 type classroomRepo struct {
 	db *sql.DB
 }
 
+// New returs Repo instance which uses DB for classrooms' storage
 func New(db *sql.DB) Repo {
 
 	return &classroomRepo{db: db}
 }
 
+// ListClassrooms returs list of classrooms from DB by passed limit and offset
 func (cr *classroomRepo) ListClassrooms(ctx context.Context, limit, offset uint64) ([]models.Classroom, error) {
 
 	query := sq.Select("id", "tenant_id", "calendar_id").
@@ -62,6 +65,7 @@ func (cr *classroomRepo) ListClassrooms(ctx context.Context, limit, offset uint6
 	return classrooms, nil
 }
 
+// DescribeClassroom returns classroom from DB by passed id
 func (cr *classroomRepo) DescribeClassroom(ctx context.Context, classroomId uint64) (*models.Classroom, error) {
 
 	query := sq.Select("id", "tenant_id", "calendar_id").
@@ -79,6 +83,7 @@ func (cr *classroomRepo) DescribeClassroom(ctx context.Context, classroomId uint
 	return &classroom, nil
 }
 
+// AddClassroom creates new classroom in DB and returs his id
 func (cr *classroomRepo) AddClassroom(ctx context.Context, classroom models.Classroom) (uint64, error) {
 
 	query := sq.Insert(tableName).
@@ -96,6 +101,7 @@ func (cr *classroomRepo) AddClassroom(ctx context.Context, classroom models.Clas
 	return classroom.Id, nil
 }
 
+// MultiAddClassroom creates new classrooms in DB and returs count of created classroms
 func (cr *classroomRepo) MultiAddClassroom(ctx context.Context, classrooms []models.Classroom) (uint64, error) {
 
 	query := sq.Insert(tableName).
@@ -120,6 +126,7 @@ func (cr *classroomRepo) MultiAddClassroom(ctx context.Context, classrooms []mod
 	return uint64(rowsAffected), nil
 }
 
+// UpdateClassroom changes classroom in DB by passed id and new tenant_id and new calendar_id
 func (cr *classroomRepo) UpdateClassroom(ctx context.Context, classroom models.Classroom) (bool, error) {
 
 	query := sq.Update(tableName).
@@ -142,6 +149,7 @@ func (cr *classroomRepo) UpdateClassroom(ctx context.Context, classroom models.C
 	return rowsAffected > 0, nil
 }
 
+// RemoveClassroom removes classroom in DB by passed id
 func (cr *classroomRepo) RemoveClassroom(ctx context.Context, classroomId uint64) (bool, error) {
 
 	query := sq.Delete(tableName).

@@ -8,24 +8,46 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-// TODO: comment everything here
-
+// Saver is utility that saves classrooms
 type Saver interface {
 	Init(ctx context.Context)
 	Save(classroom models.Classroom)
 	Close()
 }
 
+// Policy defines behavior of Saver when classrooms in RAM are overflowed
 type Policy int
 
 const (
+	// Policy_DropAll defines behavior to drop all classrooms from RAM
 	Policy_DropAll = iota
+
+	// Policy_DropFirst defines behavior to drop only first classroom in RAM
 	Policy_DropFirst
 )
 
+// saver is thread-safe implementation of Saver interface
+// that keeps classrooms in RAM and flushes them to storage by timer
+type saver struct {
+	capacity uint
+	policy   Policy
+	interval time.Duration
+	flusher  flusher.Flusher
+
+	ticker *time.Ticker
+
+	classrooms  []models.Classroom
+	classroomCh chan models.Classroom
+
+	shouldCloseCh chan struct{}
+	isClosedCh    chan struct{}
+}
+
+// New returns thread-safe Saver instance that keeps classrooms in RAM and flushes them to storage by timer
 func New(capacity uint, policy Policy, interval time.Duration, flusher flusher.Flusher) (Saver, error) {
 
 	if capacity == 0 {
@@ -56,21 +78,7 @@ func New(capacity uint, policy Policy, interval time.Duration, flusher flusher.F
 	}, nil
 }
 
-type saver struct {
-	capacity uint
-	policy   Policy
-	interval time.Duration
-	flusher  flusher.Flusher
-
-	ticker *time.Ticker
-
-	classrooms  []models.Classroom
-	classroomCh chan models.Classroom
-
-	shouldCloseCh chan struct{}
-	isClosedCh    chan struct{}
-}
-
+// Init runs work in another goroutine
 func (s *saver) Init(ctx context.Context) {
 
 	go func() {
@@ -90,7 +98,7 @@ func (s *saver) Init(ctx context.Context) {
 
 				s.flush(ctx)
 
-				log.Debug().Str("package", "saver").Msg("closing")
+				logSaver().Msg("closing")
 
 				s.isClosedCh <- struct{}{}
 
@@ -101,10 +109,12 @@ func (s *saver) Init(ctx context.Context) {
 	}()
 }
 
+// Save puts classroom through channel to RAM
 func (s *saver) Save(classroom models.Classroom) {
 	s.classroomCh <- classroom
 }
 
+// Close finishes work and flushes all classrooms in RAM to storage before closing
 func (s *saver) Close() {
 
 	s.ticker.Stop()
@@ -114,6 +124,7 @@ func (s *saver) Close() {
 	<-s.isClosedCh
 }
 
+// save appends new classroom to RAM in order of policy
 func (s *saver) save(classroom *models.Classroom) {
 
 	if uint(len(s.classrooms)) == s.capacity {
@@ -122,24 +133,30 @@ func (s *saver) save(classroom *models.Classroom) {
 
 			s.classrooms = s.classrooms[:0]
 
-			log.Debug().Str("package", "saver").Msg("droping all")
+			logSaver().Msg("droping all")
 
 		} else if s.policy == Policy_DropFirst {
 
 			s.classrooms = s.classrooms[1:]
 
-			log.Debug().Str("package", "saver").Msg("droping first")
+			logSaver().Msg("droping first")
 		}
 	}
 
 	s.classrooms = append(s.classrooms, *classroom)
 
-	log.Debug().Str("package", "saver").Msgf("saving, classrooms: %v", s.classrooms)
+	logSaver().Msgf("saving, classrooms: %v", s.classrooms)
 }
 
+// flush flushes classrooms in RAM to storage
 func (s *saver) flush(ctx context.Context) {
 
 	s.classrooms = s.flusher.Flush(ctx, nil, s.classrooms)
 
-	log.Debug().Str("package", "saver").Msg("flushing")
+	logSaver().Msgf("flushing, classrooms: %v", s.classrooms)
+}
+
+// logSaver is convenient internal function for logging
+func logSaver() *zerolog.Event {
+	return log.Debug().Str("package", "saver")
 }
