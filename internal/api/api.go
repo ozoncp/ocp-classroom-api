@@ -7,6 +7,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	opentracing "github.com/opentracing/opentracing-go"
+
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
@@ -106,6 +108,10 @@ func (a *api) MultiCreateClassroomV1(ctx context.Context,
 
 	defer utils.LogGrpcCall("MultiCreateClassroomV1", &req, &res, &err)
 
+	tracer := opentracing.GlobalTracer()
+	span := tracer.StartSpan("MultiCreateClassroomV1")
+	defer span.Finish()
+
 	if err = req.Validate(); err != nil {
 
 		err = status.Error(codes.InvalidArgument, err.Error())
@@ -122,7 +128,7 @@ func (a *api) MultiCreateClassroomV1(ctx context.Context,
 	}
 
 	fl := flusher.New(a.classroomRepo, chunkSize)
-	remainingClassrooms := fl.Flush(ctx, classrooms)
+	remainingClassrooms := fl.Flush(ctx, span, classrooms)
 
 	var createdCount = uint64(len(classrooms) - len(remainingClassrooms))
 	if createdCount == 0 {

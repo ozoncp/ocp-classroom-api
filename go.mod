@@ -17,6 +17,7 @@ require (
 	github.com/lib/pq v1.2.0 // indirect
 	github.com/onsi/ginkgo v1.16.3
 	github.com/onsi/gomega v1.13.0
+	github.com/opentracing/opentracing-go v1.2.0
 	github.com/rs/zerolog v1.22.0
 	github.com/shopspring/decimal v1.2.0 // indirect
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect

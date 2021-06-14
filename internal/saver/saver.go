@@ -138,7 +138,8 @@ func (s *saver) save(classroom *models.Classroom) {
 }
 
 func (s *saver) flush(ctx context.Context) {
-	s.classrooms = s.flusher.Flush(ctx, s.classrooms)
+
+	s.classrooms = s.flusher.Flush(ctx, nil, s.classrooms)
 
 	log.Debug().Str("package", "saver").Msg("flushing")
 }
