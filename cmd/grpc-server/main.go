@@ -25,6 +25,10 @@ func main() {
 
 	flag.Parse()
 
+	if err := InitGlobalTracer("ocp-classroom-api"); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
+	}
+
 	listen, err := net.Listen("tcp", *grpcEndpoint)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to listen")
