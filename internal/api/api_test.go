@@ -12,6 +12,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/api"
+	"github.com/ozoncp/ocp-classroom-api/internal/producer"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
@@ -25,7 +26,9 @@ var _ = Describe("Api", func() {
 		mock sqlmock.Sqlmock
 
 		classroomsRepo repo.Repo
-		apiServer      grpcApi.OcpClassroomApiServer
+		logProducer    producer.LogProducer
+
+		apiServer grpcApi.OcpClassroomApiServer
 	)
 
 	BeforeEach(func() {
@@ -39,7 +42,14 @@ var _ = Describe("Api", func() {
 		}
 
 		classroomsRepo = repo.New(db)
-		apiServer = api.NewOcpClassroomApi(classroomsRepo)
+
+		// TODO: generate logProduccer mock
+		logProducer, err = producer.New()
+		if err != nil {
+			Fail("can not create log producer")
+		}
+
+		apiServer = api.NewOcpClassroomApi(classroomsRepo, logProducer)
 	})
 
 	AfterEach(func() {

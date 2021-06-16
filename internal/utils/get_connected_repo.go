@@ -20,20 +20,22 @@ const (
 	dataSourceName = "postgres://" + user + ":" + password + "@" + address + "/" + dbName + "?" + sslmode
 )
 
-func GetConnectedRepo(ctx context.Context) *repo.Repo {
+func GetConnectedRepo(ctx context.Context) (repo.Repo, error) {
 
 	db, err := sql.Open("pgx", dataSourceName)
 	if err != nil {
-		log.Fatal().Err(err).Msg("GetConnectedRepo: Failed to open postgres")
+		log.Error().Err(err).Msg("GetConnectedRepo: Failed to open postgres")
+		return nil, err
 	}
 
 	if err := db.PingContext(ctx); err != nil {
-		log.Fatal().Err(err).Msg("GetConnectedRepo: Failed to ping postgres")
+		log.Error().Err(err).Msg("GetConnectedRepo: Failed to ping postgres")
+		return nil, err
 	}
 
 	log.Debug().Msgf("GetConnectedRepo: Connected to DB %v", dbName)
 
 	classroomRepo := repo.New(db)
 
-	return &classroomRepo
+	return classroomRepo, nil
 }

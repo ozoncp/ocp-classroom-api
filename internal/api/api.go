@@ -11,6 +11,7 @@ import (
 
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
+	"github.com/ozoncp/ocp-classroom-api/internal/producer"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
@@ -23,6 +24,7 @@ const chunkSize int = 5
 type api struct {
 	grpcApi.UnimplementedOcpClassroomApiServer
 	classroomRepo repo.Repo
+	logProducer   producer.LogProducer
 }
 
 // ListClassroomsV1 returns list of classrooms from DB
@@ -84,6 +86,12 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 	req *grpcApi.CreateClassroomV1Request) (res *grpcApi.CreateClassroomV1Response, err error) {
 
 	defer utils.LogGrpcCall("CreateClassroomV1", &req, &res, &err)
+	defer func() {
+
+		if errKafka := a.logProducer.Send(producer.Create, req, res, err); errKafka != nil {
+			err = errKafka
+		}
+	}()
 
 	if err = req.Validate(); err != nil {
 
@@ -150,6 +158,12 @@ func (a *api) UpdateClassroomV1(ctx context.Context,
 	req *grpcApi.UpdateClassroomV1Request) (res *grpcApi.UpdateClassroomV1Response, err error) {
 
 	defer utils.LogGrpcCall("UpdateClassroomV1", &req, &res, &err)
+	defer func() {
+
+		if errKafka := a.logProducer.Send(producer.Update, req, res, err); errKafka != nil {
+			err = errKafka
+		}
+	}()
 
 	if err = req.Validate(); err != nil {
 
@@ -175,6 +189,12 @@ func (a *api) RemoveClassroomV1(ctx context.Context,
 	req *grpcApi.RemoveClassroomV1Request) (res *grpcApi.RemoveClassroomV1Response, err error) {
 
 	defer utils.LogGrpcCall("RemoveClassroomV1", &req, &res, &err)
+	defer func() {
+
+		if errKafka := a.logProducer.Send(producer.Remove, req, res, err); errKafka != nil {
+			err = errKafka
+		}
+	}()
 
 	if err = req.Validate(); err != nil {
 
@@ -194,6 +214,9 @@ func (a *api) RemoveClassroomV1(ctx context.Context,
 }
 
 // NewOcpClassroomApi returns implementation of OcpClassroomApiServer interface to operate DB
-func NewOcpClassroomApi(classroomRepo repo.Repo) grpcApi.OcpClassroomApiServer {
-	return &api{classroomRepo: classroomRepo}
+func NewOcpClassroomApi(
+	classroomRepo repo.Repo,
+	logProducer producer.LogProducer) grpcApi.OcpClassroomApiServer {
+
+	return &api{classroomRepo: classroomRepo, logProducer: logProducer}
 }

@@ -17,7 +17,11 @@ const logPrefix = "classroomRepo: "
 func main() {
 
 	ctx := context.Background()
-	classroomRepo := *utils.GetConnectedRepo(ctx)
+
+	classroomRepo, err := utils.GetConnectedRepo(ctx)
+	if err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
+	}
 
 	for {
 

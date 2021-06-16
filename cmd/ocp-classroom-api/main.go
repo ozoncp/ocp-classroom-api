@@ -14,6 +14,10 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 )
 
+// TODO: locate gRPC code here. Relocate fileWork and concurrencyWork to separeta files.
+// TODO: check all defers to be sure that error is handled.
+// TODO: replace all user input with command line args or better with environment variables
+
 func main() {
 
 	introduce()
@@ -82,9 +86,14 @@ func doConcurrencyWork() {
 
 	ctx := context.Background()
 
-	saver, err := saver.New(5, saver.Policy_DropAll, time.Second*15, flusher.New(*utils.GetConnectedRepo(ctx), 3))
+	repo, err := utils.GetConnectedRepo(ctx)
 	if err != nil {
-		log.Fatal().Err(err).Msg(logPrefix + "Failed to get new Saver instance")
+		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
+	}
+
+	saver, err := saver.New(5, saver.Policy_DropAll, time.Second*15, flusher.New(repo, 3))
+	if err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to get new Saver instance")
 	}
 
 	saver.Init(ctx)
