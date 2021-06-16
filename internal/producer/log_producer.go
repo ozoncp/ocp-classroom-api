@@ -8,6 +8,8 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+// TODO: change code as Slava V. wishes
+
 type RpcName = int
 
 const (
