@@ -2,124 +2,64 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
-	"os"
-	"time"
+	"net"
 
 	"github.com/rs/zerolog/log"
 
-	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
-	"github.com/ozoncp/ocp-classroom-api/internal/models"
-	"github.com/ozoncp/ocp-classroom-api/internal/saver"
+	"google.golang.org/grpc"
+
+	"github.com/ozoncp/ocp-classroom-api/internal/api"
+	"github.com/ozoncp/ocp-classroom-api/internal/producer"
 	"github.com/ozoncp/ocp-classroom-api/internal/utils"
+
+	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
-// TODO: locate gRPC code here. Relocate fileWork and concurrencyWork to separeta files.
-// TODO: check all defers to be sure that error is handled.
-// TODO: replace all user input with command line args or better with environment variables
+const logPrefix = "ocp-classroom-api service: "
+
+func introduce() {
+	fmt.Println("Hello World! I'm ocp-classroom-api service by Aleksandr Kuzminykh.")
+}
 
 func main() {
 
 	introduce()
 
-	cmd := 0
-	fmt.Print("What to call? (0 - concurrency, 1 - file): ")
-	fmt.Scan(&cmd)
-	fmt.Println()
-
-	switch cmd {
-	case 0:
-		doConcurrencyWork()
-	case 1:
-		doFileWork()
-	}
-}
-
-func introduce() {
-	fmt.Println("Hello World! I'm ocp-classroom-api package by Aleksandr Kuzminykh.")
-}
-
-func doFileWork() {
-
-	const logPrefix = "FileWork: "
-
 	log.Debug().Msg(logPrefix + "started")
 
-	openReadCloseFile := func(i int) {
+	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
 
-		file, err := os.Open("hello.txt")
+	flag.Parse()
 
-		if err != nil {
-			log.Fatal().Err(err).Msg(logPrefix + "failed to create file")
-		}
-
-		defer func() {
-			file.Close()
-			log.Debug().Msgf(logPrefix+"is closing file for %vth time", i+1)
-		}()
-
-		var bytes []byte = make([]byte, 1024)
-		var bytesCount int
-
-		bytesCount, err = file.Read(bytes)
-
-		log.Debug().Str("File", string(bytes[:bytesCount])).Msgf(logPrefix+"is reading file for %vth time", i+1)
-
-		if err != nil {
-			log.Fatal().Err(err).Msg(logPrefix + "failed to write to file")
-		}
+	if err := InitGlobalTracer("ocp-classroom-api"); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
 	}
 
-	for i := 0; i < 10; i++ {
-
-		openReadCloseFile(i)
-
-		time.Sleep(1 * time.Second)
+	listen, err := net.Listen("tcp", *grpcEndpoint)
+	if err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to listen")
 	}
-}
 
-func doConcurrencyWork() {
-
-	const logPrefix = "ConcurrencyWork: "
-
-	log.Debug().Msg(logPrefix + "started")
-
-	ctx := context.Background()
-
-	repo, err := utils.GetConnectedRepo(ctx)
+	repo, err := utils.GetConnectedRepo(context.Background())
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}
-
-	saver, err := saver.New(5, saver.Policy_DropAll, time.Second*15, flusher.New(repo, 3))
+	logProducer, err := producer.New()
 	if err != nil {
-		log.Fatal().Err(err).Msg(logPrefix + "failed to get new Saver instance")
+		log.Fatal().Err(err).Msg(logPrefix + "failed to create log producer")
 	}
 
-	saver.Init(ctx)
-	defer saver.Close()
+	s := grpc.NewServer()
+	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi(repo, logProducer))
 
-	for {
+	log.Debug().Str("endpoint", *grpcEndpoint).Msg(logPrefix + "is listening")
 
-		var cmd string
-		fmt.Print("Enter the command ('s' - save, 'x' - exit): ")
-		fmt.Scan(&cmd)
-
-		if cmd == "s" {
-
-			classroom := *models.FromFmtScan()
-
-			saver.Save(classroom)
-
-			log.Debug().Msg(logPrefix + "saved")
-
-		} else if cmd == "x" {
-
-			log.Debug().Msg(logPrefix + "finished")
-
-			break
-		}
-
-		time.Sleep(time.Millisecond * 100)
+	if err := s.Serve(listen); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to serve")
 	}
 }
+
+// CreateClassroomV1
+// curl -X POST -d "tenant_id=5&calendar_id=5" localhost:8080/v1/classrooms
