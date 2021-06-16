@@ -15,6 +15,8 @@ func main() {
 		fmt.Println("Could not create consumer: ", err)
 	}
 
+	fmt.Println("Consumer created")
+
 	subscribe(producer.KafkaTopic, consumer)
 
 	for {

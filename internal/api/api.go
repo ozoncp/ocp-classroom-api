@@ -10,6 +10,7 @@ import (
 	opentracing "github.com/opentracing/opentracing-go"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
+	"github.com/ozoncp/ocp-classroom-api/internal/metrics"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/producer"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
@@ -109,6 +110,8 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 		return nil, err
 	}
 
+	metrics.IncCreateCounter()
+
 	res = &grpcApi.CreateClassroomV1Response{ClassroomId: classroomId}
 	return res, nil
 }
@@ -180,6 +183,10 @@ func (a *api) UpdateClassroomV1(ctx context.Context,
 		return nil, err
 	}
 
+	if found {
+		metrics.IncUpdateCounter()
+	}
+
 	res = &grpcApi.UpdateClassroomV1Response{Found: found}
 	return res, nil
 }
@@ -207,6 +214,10 @@ func (a *api) RemoveClassroomV1(ctx context.Context,
 
 		err = status.Error(codes.Unavailable, err.Error())
 		return nil, err
+	}
+
+	if found {
+		metrics.IncRemoveCounter()
 	}
 
 	res = &grpcApi.RemoveClassroomV1Response{Found: found}
