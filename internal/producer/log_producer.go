@@ -9,6 +9,8 @@ import (
 	"github.com/Shopify/sarama"
 )
 
+// TODO: add logging here
+
 type LogProducer interface {
 	Send(evType ClassroomEventType, req, res interface{}, err error) error
 }

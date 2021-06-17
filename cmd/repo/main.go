@@ -25,18 +25,11 @@ func main() {
 
 	for {
 
-		var cmd string
-		fmt.Print("What to do? ('l' - list, 'a' - add, 'ma' - multi add, 'd' - describe, 'u' - update, 'r' - remove):")
-		fmt.Scan(&cmd)
-
-		switch cmd {
+		switch getCommandFromUserInput() {
 
 		case "l":
 
-			var limit uint64
-			var offset uint64
-			fmt.Print("Enter limit and offset: ")
-			fmt.Scan(&limit, &offset)
+			limit, offset := getLimitOffsetFromUserInput()
 
 			classrooms, err := classroomRepo.ListClassrooms(ctx, limit, offset)
 			if err != nil {
@@ -60,18 +53,7 @@ func main() {
 
 		case "ma":
 
-			var count int
-			fmt.Print("Enter count: ")
-			fmt.Scan(&count)
-
-			var classrooms []models.Classroom
-			for i := 0; i < count; i++ {
-
-				classroom := *models.FromFmtScan()
-				classrooms = append(classrooms, classroom)
-			}
-
-			addedCount, err := classroomRepo.MultiAddClassroom(ctx, classrooms)
+			addedCount, err := classroomRepo.MultiAddClassroom(ctx, getClassroomsFromUserInput())
 			if err != nil {
 				log.Error().Err(err).Msg(logPrefix + "failed to add classrooms")
 			} else {
@@ -81,9 +63,7 @@ func main() {
 
 		case "d":
 
-			var classroomId uint64
-			fmt.Print("Enter classroomId: ")
-			fmt.Scan(&classroomId)
+			classroomId := getClassroomIdFromUserInput()
 
 			classroom, err := classroomRepo.DescribeClassroom(ctx, classroomId)
 			if err != nil {
@@ -107,9 +87,7 @@ func main() {
 
 		case "r":
 
-			var classroomId uint64
-			fmt.Print("Enter classroomId: ")
-			fmt.Scan(&classroomId)
+			classroomId := getClassroomIdFromUserInput()
 
 			found, err := classroomRepo.RemoveClassroom(ctx, classroomId)
 			if err != nil {
@@ -118,6 +96,94 @@ func main() {
 
 				log.Debug().Msgf(logPrefix+"removed classroom with id: %v %v", classroomId, found)
 			}
+
+		case "x":
+
+			return
 		}
 	}
+}
+
+func getCommandFromUserInput() (cmd string) {
+
+	for {
+		fmt.Print("What to do? (",
+			"'l' - list,",
+			" 'a' - add,",
+			" 'ma' - multi add,",
+			" 'd' - describe,",
+			" 'u' - update,",
+			" 'r' - remove,",
+			" 'x' - exit): ")
+
+		if _, err := fmt.Scan(&cmd); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
+
+	return
+}
+
+func getLimitOffsetFromUserInput() (limit, offset uint64) {
+
+	for {
+		fmt.Print("Enter limit and offset: ")
+
+		if _, err := fmt.Scan(&limit, &offset); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
+
+	return
+}
+
+func getClassroomsFromUserInput() []models.Classroom {
+
+	var count int
+	for {
+		fmt.Print("Enter count: ")
+
+		if _, err := fmt.Scan(&count); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		if count < 1 {
+			fmt.Println("Count can not be less 1")
+			continue
+		}
+
+		break
+	}
+
+	var classrooms []models.Classroom
+	for i := 0; i < count; i++ {
+
+		classroom := *models.FromFmtScan()
+		classrooms = append(classrooms, classroom)
+	}
+
+	return classrooms
+}
+
+func getClassroomIdFromUserInput() (classroomId uint64) {
+
+	for {
+		fmt.Print("Enter classroomId: ")
+
+		if _, err := fmt.Scan(&classroomId); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
+
+	return
 }

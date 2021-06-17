@@ -36,8 +36,16 @@ func main() {
 	for {
 
 		var cmd string
-		fmt.Print("Enter the command ('s' - save, 'x' - exit): ")
-		fmt.Scan(&cmd)
+		for {
+			fmt.Print("Enter the command ('s' - save, 'x' - exit): ")
+
+			if _, err := fmt.Scan(&cmd); err != nil {
+				fmt.Println("Error occurred", err, ". Try again")
+				continue
+			}
+
+			break
+		}
 
 		if cmd == "s" {
 

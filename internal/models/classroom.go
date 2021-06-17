@@ -43,8 +43,17 @@ func FromFmtScan() *Classroom {
 
 	var tenantId uint64
 	var calendarId uint64
-	fmt.Print("Enter tenantId and calendarId: ")
-	fmt.Scan(&tenantId, &calendarId)
+
+	for {
+		fmt.Print("Enter tenantId and calendarId: ")
+
+		if _, err := fmt.Scan(&tenantId, &calendarId); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
 
 	return &Classroom{TenantId: tenantId, CalendarId: calendarId}
 }
