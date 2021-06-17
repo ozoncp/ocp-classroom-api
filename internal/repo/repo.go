@@ -126,7 +126,7 @@ func (cr *classroomRepo) MultiAddClassroom(ctx context.Context, classrooms []mod
 	return uint64(rowsAffected), nil
 }
 
-// UpdateClassroom changes classroom in DB by passed id and new tenant_id and new calendar_id
+// UpdateClassroom changes classroom in DB by passed id and new tenantId and new calendarId
 func (cr *classroomRepo) UpdateClassroom(ctx context.Context, classroom models.Classroom) (bool, error) {
 
 	query := sq.Update(tableName).

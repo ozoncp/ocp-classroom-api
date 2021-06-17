@@ -84,12 +84,12 @@ func main() {
 
 			func() {
 
-				var tenant_id uint64
-				var calendar_id uint64
-				fmt.Print("Enter tenant_id and calendar_id: ")
-				fmt.Scan(&tenant_id, &calendar_id)
+				var tenantId uint64
+				var calendarId uint64
+				fmt.Print("Enter tenantId and calendarId: ")
+				fmt.Scan(&tenantId, &calendarId)
 
-				req := &desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id}
+				req := &desc.CreateClassroomV1Request{TenantId: tenantId, CalendarId: calendarId}
 				var res *desc.CreateClassroomV1Response
 				var err error
 
@@ -118,13 +118,13 @@ func main() {
 
 				for i := 0; i < count; i++ {
 
-					var tenant_id uint64
-					var calendar_id uint64
-					fmt.Print("Enter tenant_id and calendar_id: ")
-					fmt.Scan(&tenant_id, &calendar_id)
+					var tenantId uint64
+					var calendarId uint64
+					fmt.Print("Enter tenantId and calendarId: ")
+					fmt.Scan(&tenantId, &calendarId)
 
 					req.Classrooms = append(req.Classrooms,
-						&desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id})
+						&desc.CreateClassroomV1Request{TenantId: tenantId, CalendarId: calendarId})
 				}
 
 				res, err = client.MultiCreateClassroomV1(ctx, req)
@@ -134,11 +134,11 @@ func main() {
 
 			func() {
 
-				var classroom_id uint64
-				fmt.Print("Enter classroom_id: ")
-				fmt.Scan(&classroom_id)
+				var classroomId uint64
+				fmt.Print("Enter classroomId: ")
+				fmt.Scan(&classroomId)
 
-				req := &desc.DescribeClassroomV1Request{ClassroomId: classroom_id}
+				req := &desc.DescribeClassroomV1Request{ClassroomId: classroomId}
 				var res *desc.DescribeClassroomV1Response
 				var err error
 
@@ -152,7 +152,7 @@ func main() {
 			func() {
 
 				var classroom models.Classroom
-				fmt.Print("Enter classroom_id, tenant_id and calendar_id: ")
+				fmt.Print("Enter classroomId, tenantId and calendarId: ")
 				fmt.Scan(&classroom.Id, &classroom.TenantId, &classroom.CalendarId)
 
 				req := &desc.UpdateClassroomV1Request{Classroom: classroom.ToProtoClassroom()}
@@ -168,11 +168,11 @@ func main() {
 
 			func() {
 
-				var classroom_id uint64
-				fmt.Print("Enter classroom_id: ")
-				fmt.Scan(&classroom_id)
+				var classroomId uint64
+				fmt.Print("Enter classroomId: ")
+				fmt.Scan(&classroomId)
 
-				req := &desc.RemoveClassroomV1Request{ClassroomId: classroom_id}
+				req := &desc.RemoveClassroomV1Request{ClassroomId: classroomId}
 				var res *desc.RemoveClassroomV1Response
 				var err error
 

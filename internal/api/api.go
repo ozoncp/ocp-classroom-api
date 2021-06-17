@@ -82,7 +82,7 @@ func (a *api) DescribeClassroomV1(ctx context.Context,
 	return res, nil
 }
 
-// CreateClassroomV1 returns id of created classroom in DB by passed tenant_id and calendar_id
+// CreateClassroomV1 returns id of created classroom in DB by passed tenantId and calendarId
 func (a *api) CreateClassroomV1(ctx context.Context,
 	req *grpcApi.CreateClassroomV1Request) (res *grpcApi.CreateClassroomV1Response, err error) {
 
@@ -113,7 +113,7 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 	return res, nil
 }
 
-// MultiCreateClassroomV1 returns count of created classrooms in DB by passed list of tenant_id and calendar_id
+// MultiCreateClassroomV1 returns count of created classrooms in DB by passed list of tenantId and calendarId
 func (a *api) MultiCreateClassroomV1(ctx context.Context,
 	req *grpcApi.MultiCreateClassroomV1Request) (res *grpcApi.MultiCreateClassroomV1Response, err error) {
 
@@ -152,7 +152,7 @@ func (a *api) MultiCreateClassroomV1(ctx context.Context,
 	return res, nil
 }
 
-// UpdateClassroomV1 changes classroom in DB by passed id and new tenant_id and calendar_id
+// UpdateClassroomV1 changes classroom in DB by passed id and new tenantId and calendarId
 // and returns whether classroom was changed
 func (a *api) UpdateClassroomV1(ctx context.Context,
 	req *grpcApi.UpdateClassroomV1Request) (res *grpcApi.UpdateClassroomV1Response, err error) {

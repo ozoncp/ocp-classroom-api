@@ -71,23 +71,23 @@ func main() {
 				classrooms = append(classrooms, classroom)
 			}
 
-			added_count, err := classroomRepo.MultiAddClassroom(ctx, classrooms)
+			addedCount, err := classroomRepo.MultiAddClassroom(ctx, classrooms)
 			if err != nil {
 				log.Error().Err(err).Msg(logPrefix + "failed to add classrooms")
 			} else {
 
-				log.Debug().Msgf(logPrefix+"added classrooms count: %v", added_count)
+				log.Debug().Msgf(logPrefix+"added classrooms count: %v", addedCount)
 			}
 
 		case "d":
 
-			var classroom_id uint64
-			fmt.Print("Enter classroom_id: ")
-			fmt.Scan(&classroom_id)
+			var classroomId uint64
+			fmt.Print("Enter classroomId: ")
+			fmt.Scan(&classroomId)
 
-			classroom, err := classroomRepo.DescribeClassroom(ctx, classroom_id)
+			classroom, err := classroomRepo.DescribeClassroom(ctx, classroomId)
 			if err != nil {
-				log.Error().Err(err).Msgf(logPrefix+"failed to describe classroom with id: %v", classroom_id)
+				log.Error().Err(err).Msgf(logPrefix+"failed to describe classroom with id: %v", classroomId)
 			} else {
 
 				log.Debug().Msgf(logPrefix+"Described classroom: %v", classroom)
@@ -107,16 +107,16 @@ func main() {
 
 		case "r":
 
-			var classroom_id uint64
-			fmt.Print("Enter classroom_id: ")
-			fmt.Scan(&classroom_id)
+			var classroomId uint64
+			fmt.Print("Enter classroomId: ")
+			fmt.Scan(&classroomId)
 
-			found, err := classroomRepo.RemoveClassroom(ctx, classroom_id)
+			found, err := classroomRepo.RemoveClassroom(ctx, classroomId)
 			if err != nil {
-				log.Error().Err(err).Msgf(logPrefix+"failed to remove classroom with id: %v", classroom_id)
+				log.Error().Err(err).Msgf(logPrefix+"failed to remove classroom with id: %v", classroomId)
 			} else {
 
-				log.Debug().Msgf(logPrefix+"removed classroom with id: %v %v", classroom_id, found)
+				log.Debug().Msgf(logPrefix+"removed classroom with id: %v %v", classroomId, found)
 			}
 		}
 	}

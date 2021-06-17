@@ -41,10 +41,10 @@ func FromProtoClassroom(protoClassroom *grpcApi.Classroom) *Classroom {
 
 func FromFmtScan() *Classroom {
 
-	var tenant_id uint64
-	var calendar_id uint64
-	fmt.Print("Enter tenant_id and calendar_id: ")
-	fmt.Scan(&tenant_id, &calendar_id)
+	var tenantId uint64
+	var calendarId uint64
+	fmt.Print("Enter tenantId and calendarId: ")
+	fmt.Scan(&tenantId, &calendarId)
 
-	return &Classroom{TenantId: tenant_id, CalendarId: calendar_id}
+	return &Classroom{TenantId: tenantId, CalendarId: calendarId}
 }

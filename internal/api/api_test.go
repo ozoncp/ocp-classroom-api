@@ -194,7 +194,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are not valid", func() {
 
-			It("returns error if classroom_id is 0", func() {
+			It("returns error if classroomId is 0", func() {
 
 				request := &grpcApi.DescribeClassroomV1Request{
 					ClassroomId: 0,
@@ -224,7 +224,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are valid", func() {
 
-			It("returns classroom_id if query executes", func() {
+			It("returns classroomId if query executes", func() {
 
 				request := &grpcApi.CreateClassroomV1Request{
 					TenantId:   1,
@@ -273,7 +273,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are not valid", func() {
 
-			It("returns error if tenant_id is 0 or calendar_id is 0", func() {
+			It("returns error if tenantId is 0 or calendarId is 0", func() {
 
 				request := &grpcApi.CreateClassroomV1Request{
 					TenantId:   0,
@@ -304,7 +304,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are valid", func() {
 
-			It("returns created_count if query executes", func() {
+			It("returns createdCount if query executes", func() {
 
 				request := &grpcApi.MultiCreateClassroomV1Request{
 					Classrooms: []*grpcApi.CreateClassroomV1Request{
@@ -356,7 +356,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are not valid", func() {
 
-			It("returns error if tenant_id is 0 or calendar_id is 0", func() {
+			It("returns error if tenantId is 0 or calendarId is 0", func() {
 
 				for i := uint64(1); i < 3; i++ {
 
@@ -569,7 +569,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are not valid", func() {
 
-			It("returns error if classroom_id is 0", func() {
+			It("returns error if classroomId is 0", func() {
 
 				request := &grpcApi.RemoveClassroomV1Request{
 					ClassroomId: 0,
