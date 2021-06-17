@@ -2,13 +2,15 @@ package models
 
 import (
 	"fmt"
+
+	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
 type Classroom struct {
-	Id uint64
+	Id uint64 `db:"id"`
 
-	TenantId   uint64
-	CalendarId uint64
+	TenantId   uint64 `db:"tenant_id"`
+	CalendarId uint64 `db:"calendar_id"`
 }
 
 func (cr *Classroom) String() (str string) {
@@ -17,4 +19,22 @@ func (cr *Classroom) String() (str string) {
 		cr.Id, cr.TenantId, cr.CalendarId)
 
 	return
+}
+
+func (cr *Classroom) ToProtoClassroom() *grpcApi.Classroom {
+
+	return &grpcApi.Classroom{
+		ClassroomId: cr.Id,
+		TenantId:    cr.TenantId,
+		CalendarId:  cr.CalendarId,
+	}
+}
+
+func FromProtoClassroom(protoClassroom *grpcApi.Classroom) *Classroom {
+
+	return &Classroom{
+		Id:         protoClassroom.ClassroomId,
+		TenantId:   protoClassroom.TenantId,
+		CalendarId: protoClassroom.CalendarId,
+	}
 }

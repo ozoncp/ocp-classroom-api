@@ -1,13 +1,15 @@
 package flusher
 
 import (
+	"context"
+
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 )
 
 type Flusher interface {
-	Flush(classrooms []models.Classroom) []models.Classroom
+	Flush(ctx context.Context, classrooms []models.Classroom) []models.Classroom
 }
 
 type flusher struct {
@@ -19,7 +21,7 @@ func New(repo repo.Repo, chunkSize int) *flusher {
 	return &flusher{repo: repo, chunkSize: chunkSize}
 }
 
-func (fl *flusher) Flush(classrooms []models.Classroom) []models.Classroom {
+func (fl *flusher) Flush(ctx context.Context, classrooms []models.Classroom) []models.Classroom {
 
 	chunks, err := utils.SplitSlice(classrooms, fl.chunkSize)
 
@@ -29,7 +31,7 @@ func (fl *flusher) Flush(classrooms []models.Classroom) []models.Classroom {
 
 	for i, chunk := range chunks {
 
-		if err := fl.repo.AddClassrooms(chunk); err != nil {
+		if err := fl.repo.AddClassrooms(ctx, chunk); err != nil {
 			return classrooms[fl.chunkSize*i:]
 		}
 	}

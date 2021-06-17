@@ -1,6 +1,7 @@
 package flusher_test
 
 import (
+	"context"
 	"errors"
 
 	"github.com/golang/mock/gomock"
@@ -23,7 +24,9 @@ var _ = Describe("Flusher", func() {
 			mockRepo *mocks.MockRepo
 
 			classrooms []models.Classroom
-			fl         flusher.Flusher
+
+			ctx context.Context
+			fl  flusher.Flusher
 		)
 
 		BeforeEach(func() {
@@ -37,6 +40,8 @@ var _ = Describe("Flusher", func() {
 				{Id: 4, TenantId: 4, CalendarId: 4},
 				{Id: 5, TenantId: 5, CalendarId: 5},
 			}
+
+			ctx = context.Background()
 		})
 
 		AfterEach(func() {
@@ -50,7 +55,7 @@ var _ = Describe("Flusher", func() {
 				By("receiving wrong chunkSize")
 
 				fl = flusher.New(mockRepo, -1)
-				remainingClassrooms := fl.Flush(classrooms)
+				remainingClassrooms := fl.Flush(ctx, classrooms)
 
 				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms))
 
@@ -59,7 +64,7 @@ var _ = Describe("Flusher", func() {
 				classrooms = nil
 
 				fl = flusher.New(mockRepo, chunkSize)
-				remainingClassrooms = fl.Flush(classrooms)
+				remainingClassrooms = fl.Flush(ctx, classrooms)
 
 				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms))
 			})
@@ -74,9 +79,9 @@ var _ = Describe("Flusher", func() {
 
 			It("flushes successfully", func() {
 
-				mockRepo.EXPECT().AddClassrooms(gomock.Any()).Times(3).Return(nil)
+				mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Times(3).Return(nil)
 
-				remainingClassrooms := fl.Flush(classrooms)
+				remainingClassrooms := fl.Flush(ctx, classrooms)
 
 				Expect(remainingClassrooms).Should(BeNil())
 			})
@@ -84,20 +89,20 @@ var _ = Describe("Flusher", func() {
 			It("can not flush fully", func() {
 
 				gomock.InOrder(
-					mockRepo.EXPECT().AddClassrooms(gomock.Any()).Return(nil),
-					mockRepo.EXPECT().AddClassrooms(gomock.Any()).Return(errors.New("can not add classrooms")),
+					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(nil),
+					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(errors.New("can not add classrooms")),
 				)
 
-				remainingClassrooms := fl.Flush(classrooms)
+				remainingClassrooms := fl.Flush(ctx, classrooms)
 
 				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms[chunkSize:]))
 			})
 
 			It("can not flush anything", func() {
 
-				mockRepo.EXPECT().AddClassrooms(gomock.Any()).Return(errors.New("can not add classrooms"))
+				mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(errors.New("can not add classrooms"))
 
-				remainingClassrooms := fl.Flush(classrooms)
+				remainingClassrooms := fl.Flush(ctx, classrooms)
 
 				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms))
 			})

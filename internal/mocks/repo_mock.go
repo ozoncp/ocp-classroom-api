@@ -5,6 +5,7 @@
 package mocks
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,60 +35,76 @@ func (m *MockRepo) EXPECT() *MockRepoMockRecorder {
 	return m.recorder
 }
 
-// AddClassrooms mocks base method.
-func (m *MockRepo) AddClassrooms(arg0 []models.Classroom) error {
+// AddClassroom mocks base method.
+func (m *MockRepo) AddClassroom(arg0 context.Context, arg1 models.Classroom) (uint64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AddClassrooms", arg0)
+	ret := m.ctrl.Call(m, "AddClassroom", arg0, arg1)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddClassroom indicates an expected call of AddClassroom.
+func (mr *MockRepoMockRecorder) AddClassroom(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClassroom", reflect.TypeOf((*MockRepo)(nil).AddClassroom), arg0, arg1)
+}
+
+// AddClassrooms mocks base method.
+func (m *MockRepo) AddClassrooms(arg0 context.Context, arg1 []models.Classroom) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddClassrooms", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddClassrooms indicates an expected call of AddClassrooms.
-func (mr *MockRepoMockRecorder) AddClassrooms(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) AddClassrooms(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClassrooms", reflect.TypeOf((*MockRepo)(nil).AddClassrooms), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddClassrooms", reflect.TypeOf((*MockRepo)(nil).AddClassrooms), arg0, arg1)
 }
 
 // DescribeClassroom mocks base method.
-func (m *MockRepo) DescribeClassroom(arg0 uint64) (*models.Classroom, error) {
+func (m *MockRepo) DescribeClassroom(arg0 context.Context, arg1 uint64) (*models.Classroom, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DescribeClassroom", arg0)
+	ret := m.ctrl.Call(m, "DescribeClassroom", arg0, arg1)
 	ret0, _ := ret[0].(*models.Classroom)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // DescribeClassroom indicates an expected call of DescribeClassroom.
-func (mr *MockRepoMockRecorder) DescribeClassroom(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) DescribeClassroom(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeClassroom", reflect.TypeOf((*MockRepo)(nil).DescribeClassroom), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeClassroom", reflect.TypeOf((*MockRepo)(nil).DescribeClassroom), arg0, arg1)
 }
 
 // ListClassrooms mocks base method.
-func (m *MockRepo) ListClassrooms(arg0, arg1 uint64) ([]models.Classroom, error) {
+func (m *MockRepo) ListClassrooms(arg0 context.Context, arg1, arg2 uint64) ([]models.Classroom, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListClassrooms", arg0, arg1)
+	ret := m.ctrl.Call(m, "ListClassrooms", arg0, arg1, arg2)
 	ret0, _ := ret[0].([]models.Classroom)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListClassrooms indicates an expected call of ListClassrooms.
-func (mr *MockRepoMockRecorder) ListClassrooms(arg0, arg1 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) ListClassrooms(arg0, arg1, arg2 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClassrooms", reflect.TypeOf((*MockRepo)(nil).ListClassrooms), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClassrooms", reflect.TypeOf((*MockRepo)(nil).ListClassrooms), arg0, arg1, arg2)
 }
 
 // RemoveClassroom mocks base method.
-func (m *MockRepo) RemoveClassroom(arg0 uint64) error {
+func (m *MockRepo) RemoveClassroom(arg0 context.Context, arg1 uint64) (bool, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RemoveClassroom", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "RemoveClassroom", arg0, arg1)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RemoveClassroom indicates an expected call of RemoveClassroom.
-func (mr *MockRepoMockRecorder) RemoveClassroom(arg0 interface{}) *gomock.Call {
+func (mr *MockRepoMockRecorder) RemoveClassroom(arg0, arg1 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveClassroom", reflect.TypeOf((*MockRepo)(nil).RemoveClassroom), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveClassroom", reflect.TypeOf((*MockRepo)(nil).RemoveClassroom), arg0, arg1)
 }

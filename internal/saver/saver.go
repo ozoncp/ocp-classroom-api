@@ -1,16 +1,18 @@
 package saver
 
 import (
+	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
+
+	"github.com/rs/zerolog/log"
 )
 
 type Saver interface {
-	Init() error
+	Init(ctx context.Context)
 	Save(classroom models.Classroom)
 	Close()
 }
@@ -22,7 +24,7 @@ const (
 	Policy_DropFirst
 )
 
-func NewSaver(capacity uint, policy Policy, interval time.Duration, flusher flusher.Flusher) (Saver, error) {
+func New(capacity uint, policy Policy, interval time.Duration, flusher flusher.Flusher) (Saver, error) {
 
 	if capacity == 0 {
 		return nil, errors.New("capacity is 0")
@@ -41,6 +43,14 @@ func NewSaver(capacity uint, policy Policy, interval time.Duration, flusher flus
 		policy:   policy,
 		interval: interval,
 		flusher:  flusher,
+
+		ticker: time.NewTicker(interval),
+
+		classrooms:  make([]models.Classroom, 0, capacity),
+		classroomCh: make(chan models.Classroom),
+
+		shouldCloseCh: make(chan struct{}),
+		isClosedCh:    make(chan struct{}),
 	}, nil
 }
 
@@ -57,85 +67,52 @@ type saver struct {
 
 	shouldCloseCh chan struct{}
 	isClosedCh    chan struct{}
-
-	isInited bool
 }
 
-func (s *saver) Init() error {
+func (s *saver) Init(ctx context.Context) {
 
-	if s.isInited {
-		return errors.New("is already inited")
-	}
+	go func() {
 
-	s.ticker = time.NewTicker(s.interval)
+		for {
+			select {
 
-	s.classrooms = make([]models.Classroom, 0, s.capacity)
-	s.classroomCh = make(chan models.Classroom)
+			case classroom := <-s.classroomCh:
 
-	s.shouldCloseCh = make(chan struct{})
-	s.isClosedCh = make(chan struct{})
+				s.save(&classroom)
 
-	go loop(s)
+			case <-s.ticker.C:
 
-	s.isInited = true
+				s.flush(ctx)
 
-	return nil
+			case <-s.shouldCloseCh:
+
+				s.flush(ctx)
+
+				log.Debug().Str("package", "saver").Msg("closing")
+
+				s.isClosedCh <- struct{}{}
+
+				return
+			}
+
+		}
+	}()
 }
 
 func (s *saver) Save(classroom models.Classroom) {
-
-	if s.isInited {
-
-		s.classroomCh <- classroom
-
-	} else {
-
-		panic("can not Save because Saver is not inited")
-	}
+	s.classroomCh <- classroom
 }
 
 func (s *saver) Close() {
 
-	if s.isInited {
+	s.ticker.Stop()
 
-		s.ticker.Stop()
+	s.shouldCloseCh <- struct{}{}
 
-		s.shouldCloseCh <- struct{}{}
-
-		<-s.isClosedCh
-
-		s.isInited = false
-	}
+	<-s.isClosedCh
 }
 
-func loop(s *saver) {
-
-	for {
-		select {
-
-		case classroom := <-s.classroomCh:
-
-			s.loop_save(&classroom)
-
-		case <-s.ticker.C:
-
-			s.loop_flush()
-
-		case <-s.shouldCloseCh:
-
-			s.loop_flush()
-
-			fmt.Println("closing...")
-
-			s.isClosedCh <- struct{}{}
-
-			return
-		}
-
-	}
-}
-
-func (s *saver) loop_save(classroom *models.Classroom) {
+func (s *saver) save(classroom *models.Classroom) {
 
 	if uint(len(s.classrooms)) == s.capacity {
 
@@ -143,23 +120,23 @@ func (s *saver) loop_save(classroom *models.Classroom) {
 
 			s.classrooms = s.classrooms[:0]
 
-			fmt.Println("droping all")
+			log.Debug().Str("package", "saver").Msg("droping all")
 
 		} else if s.policy == Policy_DropFirst {
 
 			s.classrooms = s.classrooms[1:]
 
-			fmt.Println("droping first")
+			log.Debug().Str("package", "saver").Msg("droping first")
 		}
 	}
 
 	s.classrooms = append(s.classrooms, *classroom)
 
-	fmt.Println("saving... classrooms:", s.classrooms)
+	log.Debug().Str("package", "saver").Msgf("saving, classrooms: %v", s.classrooms)
 }
 
-func (s *saver) loop_flush() {
-	s.classrooms = s.flusher.Flush(s.classrooms)
+func (s *saver) flush(ctx context.Context) {
+	s.classrooms = s.flusher.Flush(ctx, s.classrooms)
 
-	fmt.Println("flushing... classrooms:", s.classrooms)
+	log.Debug().Str("package", "saver").Msg("flushing")
 }
