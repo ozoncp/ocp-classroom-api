@@ -14,169 +14,176 @@ import (
 	"google.golang.org/grpc"
 )
 
-func main() {
+const logPrefix = "gRPC client: "
 
-	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
+var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
+
+func main() {
 
 	flag.Parse()
 
-	log.Debug().Msg("doGrpcClientWork...")
+	log.Debug().Msg(logPrefix + "started")
 
 	conn, err := grpc.Dial(*grpcEndpoint, grpc.WithInsecure(), grpc.WithBlock())
 
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to connect")
+		log.Fatal().Err(err).Msg(logPrefix + "failed to connect")
 	}
-	defer conn.Close()
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			log.Error().Err(err).Msg(logPrefix + "failed to close connection")
+		}
+	}()
 
-	log.Debug().Str("gRPC server endpoint", *grpcEndpoint).Msg("Client connected")
+	log.Debug().Str("gRPC server endpoint", *grpcEndpoint).Msg(logPrefix + "connected")
 
-	c := desc.NewOcpClassroomApiClient(conn)
-
-	var cmd string
-	fmt.Print("What to do? ('l' - List, 'c' - Create, 'mc' - MultiCreate, 'd' - Describe', 'u' - Update, 'r' - Remove): ")
-	fmt.Scan(&cmd)
+	client := desc.NewOcpClassroomApiClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*5)
 	defer cancel()
 
-	switch cmd {
+	for {
 
-	case "l":
+		var cmd string
+		fmt.Print("What to do? (",
+			"'l' - List,",
+			"'c' - Create,",
+			"'mc' - MultiCreate,",
+			"'d' - Describe',",
+			"'u' - Update,",
+			"'r' - Remove,",
+			"'x' - Exit",
+			"): ")
+		fmt.Scan(&cmd)
 
-		func() {
+		switch cmd {
 
-			var limit uint64
-			var offset uint64
-			fmt.Print("Enter the limit and offset: ")
-			fmt.Scan(&limit, &offset)
+		case "l":
 
-			req := &desc.ListClassroomsV1Request{Limit: limit, Offset: offset}
-			var res *desc.ListClassroomsV1Response
-			var err error
+			func() {
 
-			defer utils.LogGrpcCall("ListClassroomsV1 call", &req, &res, &err)
+				var limit uint64
+				var offset uint64
+				fmt.Print("Enter the limit and offset: ")
+				fmt.Scan(&limit, &offset)
 
-			res, err = c.ListClassroomsV1(ctx, req)
-			if err != nil {
-				return
-			}
-		}()
+				req := &desc.ListClassroomsV1Request{Limit: limit, Offset: offset}
+				var res *desc.ListClassroomsV1Response
+				var err error
 
-	case "c":
+				defer utils.LogGrpcCall(logPrefix+"ListClassroomsV1 call", &req, &res, &err)
 
-		func() {
+				res, err = client.ListClassroomsV1(ctx, req)
+				if err != nil {
+					return
+				}
+			}()
 
-			var tenant_id uint64
-			var calendar_id uint64
-			fmt.Print("Enter tenant_id and calendar_id: ")
-			fmt.Scan(&tenant_id, &calendar_id)
+		case "c":
 
-			req := &desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id}
-			var res *desc.CreateClassroomV1Response
-			var err error
-
-			defer utils.LogGrpcCall("CreateClassroomV1 call", &req, &res, &err)
-
-			res, err = c.CreateClassroomV1(ctx, req)
-			if err != nil {
-				return
-			}
-		}()
-
-	case "mc":
-
-		func() {
-
-			var count int
-			fmt.Print("Enter count: ")
-			fmt.Scan(&count)
-
-			if count < 1 {
-				log.Fatal().Msg("Count can not be less 1")
-			}
-
-			req := &desc.MultiCreateClassroomV1Request{}
-			var res *desc.MultiCreateClassroomV1Response
-			var err error
-
-			defer utils.LogGrpcCall("MultiCreateClassroomV1 call", &req, &res, &err)
-
-			for i := 0; i < count; i++ {
+			func() {
 
 				var tenant_id uint64
 				var calendar_id uint64
 				fmt.Print("Enter tenant_id and calendar_id: ")
 				fmt.Scan(&tenant_id, &calendar_id)
 
-				req.Classrooms = append(req.Classrooms,
-					&desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id})
-			}
+				req := &desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id}
+				var res *desc.CreateClassroomV1Response
+				var err error
 
-			res, err = c.MultiCreateClassroomV1(ctx, req)
-			if err != nil {
-				return
-			}
-		}()
+				defer utils.LogGrpcCall(logPrefix+"CreateClassroomV1 call", &req, &res, &err)
 
-	case "d":
+				res, err = client.CreateClassroomV1(ctx, req)
+			}()
 
-		func() {
+		case "mc":
 
-			var classroom_id uint64
-			fmt.Print("Enter classroom_id: ")
-			fmt.Scan(&classroom_id)
+			func() {
 
-			req := &desc.DescribeClassroomV1Request{ClassroomId: classroom_id}
-			var res *desc.DescribeClassroomV1Response
-			var err error
+				var count int
+				fmt.Print("Enter count: ")
+				fmt.Scan(&count)
 
-			defer utils.LogGrpcCall("DescribeClassroomV1 call", &req, &res, &err)
+				if count < 1 {
+					log.Fatal().Msg(logPrefix + "count can not be less 1")
+				}
 
-			res, err = c.DescribeClassroomV1(ctx, req)
-			if err != nil {
-				return
-			}
-		}()
+				req := &desc.MultiCreateClassroomV1Request{}
+				var res *desc.MultiCreateClassroomV1Response
+				var err error
 
-	case "u":
+				defer utils.LogGrpcCall(logPrefix+"MultiCreateClassroomV1 call", &req, &res, &err)
 
-		func() {
+				for i := 0; i < count; i++ {
 
-			var classroom models.Classroom
-			fmt.Print("Enter classroom_id, tenant_id and calendar_id: ")
-			fmt.Scan(&classroom.Id, &classroom.TenantId, &classroom.CalendarId)
+					var tenant_id uint64
+					var calendar_id uint64
+					fmt.Print("Enter tenant_id and calendar_id: ")
+					fmt.Scan(&tenant_id, &calendar_id)
 
-			req := &desc.UpdateClassroomV1Request{Classroom: classroom.ToProtoClassroom()}
-			var res *desc.UpdateClassroomV1Response
-			var err error
+					req.Classrooms = append(req.Classrooms,
+						&desc.CreateClassroomV1Request{TenantId: tenant_id, CalendarId: calendar_id})
+				}
 
-			defer utils.LogGrpcCall("UpdateClassroomV1 call", &req, &res, &err)
+				res, err = client.MultiCreateClassroomV1(ctx, req)
+			}()
 
-			res, err = c.UpdateClassroomV1(ctx, req)
-			if err != nil {
-				return
-			}
-		}()
+		case "d":
 
-	case "r":
+			func() {
 
-		func() {
+				var classroom_id uint64
+				fmt.Print("Enter classroom_id: ")
+				fmt.Scan(&classroom_id)
 
-			var classroom_id uint64
-			fmt.Print("Enter classroom_id: ")
-			fmt.Scan(&classroom_id)
+				req := &desc.DescribeClassroomV1Request{ClassroomId: classroom_id}
+				var res *desc.DescribeClassroomV1Response
+				var err error
 
-			req := &desc.RemoveClassroomV1Request{ClassroomId: classroom_id}
-			var res *desc.RemoveClassroomV1Response
-			var err error
+				defer utils.LogGrpcCall(logPrefix+"DescribeClassroomV1 call", &req, &res, &err)
 
-			defer utils.LogGrpcCall("RemoveClassroomV1 call", &req, &res, &err)
+				res, err = client.DescribeClassroomV1(ctx, req)
+			}()
 
-			res, err = c.RemoveClassroomV1(ctx, req)
-			if err != nil {
-				return
-			}
-		}()
+		case "u":
+
+			func() {
+
+				var classroom models.Classroom
+				fmt.Print("Enter classroom_id, tenant_id and calendar_id: ")
+				fmt.Scan(&classroom.Id, &classroom.TenantId, &classroom.CalendarId)
+
+				req := &desc.UpdateClassroomV1Request{Classroom: classroom.ToProtoClassroom()}
+				var res *desc.UpdateClassroomV1Response
+				var err error
+
+				defer utils.LogGrpcCall(logPrefix+"UpdateClassroomV1 call", &req, &res, &err)
+
+				res, err = client.UpdateClassroomV1(ctx, req)
+			}()
+
+		case "r":
+
+			func() {
+
+				var classroom_id uint64
+				fmt.Print("Enter classroom_id: ")
+				fmt.Scan(&classroom_id)
+
+				req := &desc.RemoveClassroomV1Request{ClassroomId: classroom_id}
+				var res *desc.RemoveClassroomV1Response
+				var err error
+
+				defer utils.LogGrpcCall(logPrefix+"RemoveClassroomV1 call", &req, &res, &err)
+
+				res, err = client.RemoveClassroomV1(ctx, req)
+			}()
+
+		case "x":
+
+			return
+		}
 	}
 }

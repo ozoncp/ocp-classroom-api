@@ -1,4 +1,3 @@
-TODO: check all defers to be sure that error is handled
 TODO: check all fmt.Scan to be sure that error is handled
 TODO: replace all user input with command line args or better with environment variables
 TODO: add PosgreSQL to Docker and check if everything works
