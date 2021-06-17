@@ -6,13 +6,14 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/api"
-	"github.com/ozoncp/ocp-classroom-api/internal/producer"
+	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
@@ -26,7 +27,9 @@ var _ = Describe("Api", func() {
 		mock sqlmock.Sqlmock
 
 		classroomsRepo repo.Repo
-		logProducer    producer.LogProducer
+
+		ctrl         *gomock.Controller
+		mockProducer *mocks.MockLogProducer
 
 		apiServer grpcApi.OcpClassroomApiServer
 	)
@@ -43,13 +46,12 @@ var _ = Describe("Api", func() {
 
 		classroomsRepo = repo.New(db)
 
-		// TODO: generate logProduccer mock
-		logProducer, err = producer.New(ctx)
-		if err != nil {
-			Fail("can not create log producer")
-		}
+		ctrl = gomock.NewController(GinkgoT())
+		mockProducer = mocks.NewMockLogProducer(ctrl)
 
-		apiServer = api.NewOcpClassroomApi(classroomsRepo, logProducer)
+		mockProducer.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+
+		apiServer = api.NewOcpClassroomApi(classroomsRepo, mockProducer)
 	})
 
 	AfterEach(func() {
