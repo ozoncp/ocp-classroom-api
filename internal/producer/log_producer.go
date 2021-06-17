@@ -1,6 +1,7 @@
 package producer
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"time"
@@ -8,30 +9,24 @@ import (
 	"github.com/Shopify/sarama"
 )
 
-// TODO: change code as Slava V. wishes
-
-type RpcName = int
-
-const (
-	Create RpcName = iota
-	Update
-	Remove
-)
-
 type LogProducer interface {
-	Send(rpc RpcName, req, res interface{}, err error) error
+	Send(evType ClassroomEventType, req, res interface{}, err error) error
 }
 
 const (
 	KafkaBroker = "127.0.0.1:9094"
 	KafkaTopic  = "events"
+
+	capacity = 128
 )
 
 type logProducer struct {
 	syncProducer sarama.SyncProducer
+
+	messagesCh chan *sarama.ProducerMessage
 }
 
-func New() (LogProducer, error) {
+func New(ctx context.Context) (LogProducer, error) {
 
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
@@ -43,24 +38,32 @@ func New() (LogProducer, error) {
 		return nil, err
 	}
 
-	return &logProducer{syncProducer: producer}, nil
+	lp := &logProducer{
+		syncProducer: producer,
+		messagesCh:   make(chan *sarama.ProducerMessage, capacity)}
+
+	go lp.sendMessages(ctx)
+
+	return lp, nil
 }
 
-func (lp *logProducer) Send(rpc RpcName, req, res interface{}, err error) error {
+func (lp *logProducer) Send(evType ClassroomEventType, req, res interface{}, err error) error {
 
 	if lp == nil {
 		return errors.New("LogProducer is nil")
 	}
 
-	message := map[string]interface{}{
-		"rpc_name":  rpcNameToString(rpc),
-		"request":   req,
-		"response":  res,
-		"timestamp": time.Now(),
+	message := ClassroomEvent{
+		Type: evType,
+		Body: map[string]interface{}{
+			"request":   req,
+			"response":  res,
+			"timestamp": time.Now(),
+		},
 	}
 
 	if err != nil {
-		message["error"] = err.Error()
+		message.Body["error"] = err.Error()
 	}
 
 	b, err := json.Marshal(message)
@@ -68,30 +71,27 @@ func (lp *logProducer) Send(rpc RpcName, req, res interface{}, err error) error 
 		return err
 	}
 
-	msg := &sarama.ProducerMessage{
+	lp.messagesCh <- &sarama.ProducerMessage{
 		Topic:     KafkaTopic,
 		Partition: -1,
 		Value:     sarama.StringEncoder(b),
 	}
 
-	_, _, err = lp.syncProducer.SendMessage(msg)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
-func rpcNameToString(et RpcName) string {
+func (lp *logProducer) sendMessages(ctx context.Context) {
 
-	switch et {
-	case Create:
-		return "Create"
-	case Update:
-		return "Update"
-	case Remove:
-		return "Remove"
+	for {
+		select {
+
+		case msg := <-lp.messagesCh:
+			_, _, _ = lp.syncProducer.SendMessage(msg)
+
+		case <-ctx.Done():
+			close(lp.messagesCh)
+			lp.syncProducer.Close()
+			return
+		}
 	}
-
-	return "undefined rpc name"
 }

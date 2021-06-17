@@ -88,10 +88,7 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 
 	defer utils.LogGrpcCall("CreateClassroomV1", &req, &res, &err)
 	defer func() {
-
-		if errKafka := a.logProducer.Send(producer.Create, req, res, err); errKafka != nil {
-			err = errKafka
-		}
+		_ = a.logProducer.Send(producer.Created, req, res, err)
 	}()
 
 	if err = req.Validate(); err != nil {
@@ -162,10 +159,7 @@ func (a *api) UpdateClassroomV1(ctx context.Context,
 
 	defer utils.LogGrpcCall("UpdateClassroomV1", &req, &res, &err)
 	defer func() {
-
-		if errKafka := a.logProducer.Send(producer.Update, req, res, err); errKafka != nil {
-			err = errKafka
-		}
+		_ = a.logProducer.Send(producer.Updated, req, res, err)
 	}()
 
 	if err = req.Validate(); err != nil {
@@ -197,10 +191,7 @@ func (a *api) RemoveClassroomV1(ctx context.Context,
 
 	defer utils.LogGrpcCall("RemoveClassroomV1", &req, &res, &err)
 	defer func() {
-
-		if errKafka := a.logProducer.Send(producer.Remove, req, res, err); errKafka != nil {
-			err = errKafka
-		}
+		_ = a.logProducer.Send(producer.Removed, req, res, err)
 	}()
 
 	if err = req.Validate(); err != nil {

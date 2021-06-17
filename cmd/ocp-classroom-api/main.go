@@ -22,36 +22,43 @@ import (
 
 const logPrefix = "ocp-classroom-api service: "
 
-func introduce() {
-	fmt.Println("Hello World! I'm ocp-classroom-api service by Aleksandr Kuzminykh.")
-}
+var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
 
 func main() {
+
+	flag.Parse()
 
 	introduce()
 
 	log.Debug().Msg(logPrefix + "started")
 
-	var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
-
-	flag.Parse()
+	initTracing()
 
 	go runMetrics()
 
-	if err := InitGlobalTracer("ocp-classroom-api"); err != nil {
-		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
-	}
+	run()
+}
+
+func introduce() {
+	fmt.Println("Hello World! I'm ocp-classroom-api service by Aleksandr Kuzminykh.")
+}
+
+func run() {
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	listen, err := net.Listen("tcp", *grpcEndpoint)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to listen")
 	}
 
-	repo, err := utils.GetConnectedRepo(context.Background())
+	repo, err := utils.GetConnectedRepo(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}
-	logProducer, err := producer.New()
+
+	logProducer, err := producer.New(ctx)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to create log producer")
 	}
@@ -74,6 +81,13 @@ func runMetrics() {
 	err := http.ListenAndServe(":9100", nil)
 	if err != nil {
 		panic(err)
+	}
+}
+
+func initTracing() {
+
+	if err := InitGlobalTracer("ocp-classroom-api"); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
 	}
 }
 

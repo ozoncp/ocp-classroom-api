@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -44,5 +45,14 @@ func subscribe(topic string, consumer sarama.Consumer) {
 
 func messageReceived(message *sarama.ConsumerMessage) {
 
-	fmt.Println(sarama.StringEncoder(message.Value))
+	var classroomEvent producer.ClassroomEvent
+
+	bytes := sarama.StringEncoder(message.Value)
+
+	err := json.Unmarshal([]byte(bytes), &classroomEvent)
+	if err != nil {
+		fmt.Println("Could not unmarshal message")
+	}
+
+	fmt.Println("ClassroomEvent:", classroomEvent)
 }

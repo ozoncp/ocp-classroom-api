@@ -44,7 +44,7 @@ var _ = Describe("Api", func() {
 		classroomsRepo = repo.New(db)
 
 		// TODO: generate logProduccer mock
-		logProducer, err = producer.New()
+		logProducer, err = producer.New(ctx)
 		if err != nil {
 			Fail("can not create log producer")
 		}
