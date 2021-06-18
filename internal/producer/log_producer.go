@@ -28,14 +28,14 @@ type logProducer struct {
 	messagesCh chan *sarama.ProducerMessage
 }
 
-func New(ctx context.Context) (LogProducer, error) {
+func New(ctx context.Context, broker string) (LogProducer, error) {
 
 	config := sarama.NewConfig()
 	config.Producer.Partitioner = sarama.NewRandomPartitioner
 	config.Producer.RequiredAcks = sarama.WaitForAll
 	config.Producer.Return.Successes = true
 
-	producer, err := sarama.NewSyncProducer([]string{KafkaBroker}, config)
+	producer, err := sarama.NewSyncProducer([]string{broker}, config)
 	if err != nil {
 		return nil, err
 	}

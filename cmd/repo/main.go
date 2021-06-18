@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
@@ -9,16 +10,20 @@ import (
 	_ "github.com/jackc/pgx/stdlib"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
-	"github.com/ozoncp/ocp-classroom-api/internal/utils"
+	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 )
 
 const logPrefix = "classroomRepo: "
 
+var repoArgs = repo.NewRepoArgs()
+
 func main() {
+
+	flag.Parse()
 
 	ctx := context.Background()
 
-	classroomRepo, err := utils.GetConnectedRepo(ctx)
+	classroomRepo, err := repo.GetConnectedRepo(ctx, repoArgs)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}

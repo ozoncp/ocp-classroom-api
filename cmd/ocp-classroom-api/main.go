@@ -15,14 +15,18 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/api"
 	"github.com/ozoncp/ocp-classroom-api/internal/metrics"
 	"github.com/ozoncp/ocp-classroom-api/internal/producer"
-	"github.com/ozoncp/ocp-classroom-api/internal/utils"
+	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 
 	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
 const logPrefix = "ocp-classroom-api service: "
 
-var grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
+var (
+	grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
+	repoArgs     = repo.NewRepoArgs()
+	kafkaBroker  = flag.String("kafka-broker", producer.KafkaBroker, "Kafka Apache broker endpoint")
+)
 
 func main() {
 
@@ -53,12 +57,12 @@ func run() {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to listen")
 	}
 
-	repo, err := utils.GetConnectedRepo(ctx)
+	repo, err := repo.GetConnectedRepo(ctx, repoArgs)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}
 
-	logProducer, err := producer.New(ctx)
+	logProducer, err := producer.New(ctx, *kafkaBroker)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to create log producer")
 	}

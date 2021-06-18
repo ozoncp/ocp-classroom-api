@@ -2,17 +2,22 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"time"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
+	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 	"github.com/ozoncp/ocp-classroom-api/internal/saver"
-	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
+var repoArgs = repo.NewRepoArgs()
+
 func main() {
+
+	flag.Parse()
 
 	const logPrefix = "ConcurrencyWork: "
 
@@ -20,7 +25,7 @@ func main() {
 
 	ctx := context.Background()
 
-	repo, err := utils.GetConnectedRepo(ctx)
+	repo, err := repo.GetConnectedRepo(ctx, repoArgs)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}
