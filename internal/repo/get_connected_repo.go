@@ -13,8 +13,8 @@ import (
 const (
 	RepoUser     = "postgres"
 	RepoPassword = "postgres"
-	RepoEndpoint = "host.docker.internal:5432"
-	RepoDbName   = "ozon"
+	RepoEndpoint = "postgres:5432"
+	RepoDbName   = "postgres"
 	RepoSslMode  = "disable"
 )
 

@@ -36,11 +36,22 @@ services:
     volumes:
       - "./prometheus.yml:/etc/prometheus/prometheus.yml"
 
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/var/lib/postgresql/data
+      - ./classrooms.sql:/docker-entrypoint-initdb.d/schema.sql
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
   ocp-classroom-api:
     build: .
     environment: 
       JAEGER_AGENT_HOST: jaeger
       JAEGER_AGENT_PORT: 6831
     ports: 
-      - "5432:5432"
       - "7002:7002"
