@@ -28,6 +28,7 @@ import (
 
 const logPrefix = "ocp-classroom-api service: "
 
+// envDefault for local machine
 type config struct {
 	Endpoint string `env:"ENDPOINT" envDefault:"0.0.0.0:7002"`
 
