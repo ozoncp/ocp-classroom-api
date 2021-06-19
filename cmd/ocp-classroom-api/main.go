@@ -2,12 +2,11 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 
+	"github.com/caarlos0/env/v6"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 
@@ -29,39 +28,59 @@ import (
 
 const logPrefix = "ocp-classroom-api service: "
 
-var (
-	grpcEndpoint = flag.String("grpc-server-endpoint", "0.0.0.0:7002", "gRPC server endpoint")
-	repoArgs     = repo.NewRepoArgs()
-	kafkaBroker  = flag.String("kafka-broker", producer.KafkaBroker, "Kafka Apache broker endpoint")
-)
+type config struct {
+	Endpoint string `env:"ENDPOINT" envDefault:"0.0.0.0:7002"`
+
+	RepoDatabase string `env:"POSTGRES_DB" envDefault:"postgres"`
+	RepoUser     string `env:"POSTGRES_USER" envDefault:"postgres"`
+	RepoPassword string `env:"POSTGRES_PASSWORD" envDefault:"postgres"`
+	RepoEndpoint string `env:"POSTGRES_ENDPOINT" envDefault:"127.0.0.1:5432"`
+
+	KafkaBroker string `env:"KAFKA_BROKER" envDefault:"127.0.0.1:9094"`
+
+	JaegerEndpoint string `env:"JAEGER_ENDPOINT" envDefault:"127.0.0.1:6831"`
+}
 
 func main() {
 
-	flag.Parse()
+	cfg := config{}
+	if err := env.Parse(&cfg); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to read configs")
+	}
 
 	introduce()
 
 	log.Debug().Msg(logPrefix + "started")
 
-	initTracing()
+	if err := initGlobalTracer("ocp-classroom-api", cfg.JaegerEndpoint); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
+	}
 
 	go runMetrics()
 
-	run()
+	run(&cfg)
 }
 
 func introduce() {
 	fmt.Println("Hello World! I'm ocp-classroom-api service by Aleksandr Kuzminykh.")
 }
 
-func run() {
+func run(cfg *config) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	listen, err := net.Listen("tcp", *grpcEndpoint)
+	listen, err := net.Listen("tcp", cfg.Endpoint)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to listen")
+	}
+
+	repoArgs := &repo.RepoArgs{
+		User:     cfg.RepoUser,
+		Password: cfg.RepoPassword,
+		Endpoint: cfg.RepoEndpoint,
+		DbName:   cfg.RepoDatabase,
+		SslMode:  "disable",
 	}
 
 	repo, err := repo.GetConnectedRepo(ctx, repoArgs)
@@ -69,7 +88,7 @@ func run() {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}
 
-	logProducer, err := producer.New(ctx, *kafkaBroker)
+	logProducer, err := producer.New(ctx, cfg.KafkaBroker)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to create log producer")
 	}
@@ -77,7 +96,7 @@ func run() {
 	s := grpc.NewServer()
 	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi(repo, logProducer))
 
-	log.Debug().Str("endpoint", *grpcEndpoint).Msg(logPrefix + "is listening")
+	log.Debug().Str("endpoint", cfg.Endpoint).Msg(logPrefix + "is listening")
 
 	if err := s.Serve(listen); err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to serve")
@@ -95,17 +114,10 @@ func runMetrics() {
 	}
 }
 
-func initTracing() {
-
-	if err := InitGlobalTracer("ocp-classroom-api"); err != nil {
-		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
-	}
-}
-
 // Tip for me: run jaeger in docker and watch trace of MultiCreateClassroomV1 rpc
 // at Jaeger UI http://localhost:16686/search
 
-func InitGlobalTracer(serviceName string) error {
+func initGlobalTracer(serviceName, jaegerEndpoint string) error {
 	// Sample configuration for testing. Use constant sampling to sample every trace
 	// and enable LogSpan to log every span via configured Logger.
 	cfg := jaegercfg.Configuration{
@@ -115,7 +127,7 @@ func InitGlobalTracer(serviceName string) error {
 		},
 		Reporter: &jaegercfg.ReporterConfig{
 			LogSpans:           true,
-			LocalAgentHostPort: os.Getenv("JAEGER_AGENT_HOST") + ":" + os.Getenv("JAEGER_AGENT_PORT"),
+			LocalAgentHostPort: jaegerEndpoint,
 		},
 	}
 

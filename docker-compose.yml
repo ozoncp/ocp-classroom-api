@@ -27,6 +27,7 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
+      - 6831:6831/udp
       - "16686:16686"
 
   prometheus:
@@ -51,7 +52,11 @@ services:
   ocp-classroom-api:
     build: .
     environment: 
-      JAEGER_AGENT_HOST: jaeger
-      JAEGER_AGENT_PORT: 6831
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_ENDPOINT: postgres:5432
+      KAFKA_BROKER: kafka:9092
+      JAEGER_ENDPOINT: jaeger:6831
     ports: 
       - "7002:7002"

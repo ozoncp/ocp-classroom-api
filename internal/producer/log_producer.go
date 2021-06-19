@@ -18,8 +18,7 @@ type LogProducer interface {
 }
 
 const (
-	KafkaBroker = "kafka:9092"
-	KafkaTopic  = "events"
+	KafkaTopic = "events"
 
 	capacity = 128
 )

@@ -15,15 +15,16 @@ import (
 
 const logPrefix = "classroomRepo: "
 
-var repoArgs = repo.NewRepoArgs()
-
 func main() {
+
+	var repoArgs = repo.RepoArgs{}
+	repo.SetRepoArgsFromCommandLine(&repoArgs)
 
 	flag.Parse()
 
 	ctx := context.Background()
 
-	classroomRepo, err := repo.GetConnectedRepo(ctx, repoArgs)
+	classroomRepo, err := repo.GetConnectedRepo(ctx, &repoArgs)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}

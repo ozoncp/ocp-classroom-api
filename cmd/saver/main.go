@@ -13,9 +13,10 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var repoArgs = repo.NewRepoArgs()
-
 func main() {
+
+	var repoArgs = repo.RepoArgs{}
+	repo.SetRepoArgsFromCommandLine(&repoArgs)
 
 	flag.Parse()
 
@@ -25,7 +26,7 @@ func main() {
 
 	ctx := context.Background()
 
-	repo, err := repo.GetConnectedRepo(ctx, repoArgs)
+	repo, err := repo.GetConnectedRepo(ctx, &repoArgs)
 	if err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}
