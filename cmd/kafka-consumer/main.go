@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/Shopify/sarama"
 	"github.com/ozoncp/ocp-classroom-api/internal/producer"
 )
 
-var broker = flag.String("broker", producer.KafkaBroker, "Kafka Apache broker endpoint to connect")
+var broker = flag.String("broker", "127.0.0.1:9094", "Kafka Apache broker endpoint to connect")
 var topic = flag.String("topic", producer.KafkaTopic, "Kafka Apache topic to consume")
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 	consumer, err := sarama.NewConsumer([]string{*broker}, nil)
 	if err != nil {
 		fmt.Println("Could not create consumer: ", err)
+		os.Exit(1)
 	}
 
 	fmt.Println("Consumer created")

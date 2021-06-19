@@ -19,7 +19,11 @@ PHONY: .generate
 
 PHONY: .build
 .build:
-		CGO_ENABLED=0 GOOS=windows go build -o bin/ocp-classroom-api cmd/ocp-classroom-api/main.go
+ifeq ($(OS), Windows_NT)
+	CGO_ENABLED=0 GOOS=windows go build -o bin/ocp-classroom-api.exe cmd/ocp-classroom-api/main.go
+else
+	CGO_ENABLED=0 GOOS=linux go build -o bin/ocp-classroom-api cmd/ocp-classroom-api/main.go
+endif
 
 PHONY: install
 install: build .install

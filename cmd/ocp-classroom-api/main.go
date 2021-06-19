@@ -6,14 +6,21 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 
 	"google.golang.org/grpc"
 
+	"github.com/uber/jaeger-client-go"
+	"github.com/uber/jaeger-lib/metrics"
+
+	jaegercfg "github.com/uber/jaeger-client-go/config"
+	jaegerlog "github.com/uber/jaeger-client-go/log"
+
 	"github.com/ozoncp/ocp-classroom-api/internal/api"
-	"github.com/ozoncp/ocp-classroom-api/internal/metrics"
+	prom "github.com/ozoncp/ocp-classroom-api/internal/metrics"
 	"github.com/ozoncp/ocp-classroom-api/internal/producer"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 
@@ -79,7 +86,7 @@ func run() {
 
 func runMetrics() {
 
-	metrics.RegisterMetrics()
+	prom.RegisterMetrics()
 	http.Handle("/metrics", promhttp.Handler())
 
 	err := http.ListenAndServe(":9100", nil)
@@ -93,6 +100,42 @@ func initTracing() {
 	if err := InitGlobalTracer("ocp-classroom-api"); err != nil {
 		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
 	}
+}
+
+// Tip for me: run jaeger in docker and watch trace of MultiCreateClassroomV1 rpc
+// at Jaeger UI http://localhost:16686/search
+
+func InitGlobalTracer(serviceName string) error {
+	// Sample configuration for testing. Use constant sampling to sample every trace
+	// and enable LogSpan to log every span via configured Logger.
+	cfg := jaegercfg.Configuration{
+		Sampler: &jaegercfg.SamplerConfig{
+			Type:  jaeger.SamplerTypeConst,
+			Param: 1,
+		},
+		Reporter: &jaegercfg.ReporterConfig{
+			LogSpans:           true,
+			LocalAgentHostPort: os.Getenv("JAEGER_AGENT_HOST") + ":" + os.Getenv("JAEGER_AGENT_PORT"),
+		},
+	}
+
+	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
+	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
+	// frameworks.
+	jLogger := jaegerlog.StdLogger
+	jMetricsFactory := metrics.NullFactory
+
+	// Initialize tracer with a logger and a metrics factory
+	_, err := cfg.InitGlobalTracer(
+		serviceName,
+		jaegercfg.Logger(jLogger),
+		jaegercfg.Metrics(jMetricsFactory),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // CreateClassroomV1

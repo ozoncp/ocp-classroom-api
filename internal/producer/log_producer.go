@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
+
+	"github.com/rs/zerolog/log"
 )
 
 // TODO: add logging here
@@ -16,7 +18,7 @@ type LogProducer interface {
 }
 
 const (
-	KafkaBroker = "127.0.0.1:9094"
+	KafkaBroker = "kafka:9092"
 	KafkaTopic  = "events"
 
 	capacity = 128
@@ -88,7 +90,10 @@ func (lp *logProducer) sendMessages(ctx context.Context) {
 		select {
 
 		case msg := <-lp.messagesCh:
-			_, _, _ = lp.syncProducer.SendMessage(msg)
+			_, _, err := lp.syncProducer.SendMessage(msg)
+			if err != nil {
+				log.Error().Err(err).Msg("LogProducer: failed to send message to kafka")
+			}
 
 		case <-ctx.Done():
 			close(lp.messagesCh)
