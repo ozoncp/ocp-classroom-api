@@ -38,3 +38,22 @@ func FromProtoClassroom(protoClassroom *grpcApi.Classroom) *Classroom {
 		CalendarId: protoClassroom.CalendarId,
 	}
 }
+
+func FromFmtScan() *Classroom {
+
+	var tenantId uint64
+	var calendarId uint64
+
+	for {
+		fmt.Print("Enter tenantId and calendarId: ")
+
+		if _, err := fmt.Scan(&tenantId, &calendarId); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
+
+	return &Classroom{TenantId: tenantId, CalendarId: calendarId}
+}

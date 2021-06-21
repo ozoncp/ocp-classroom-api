@@ -102,13 +102,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((classroomsLen + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).
 						AnyTimes().
 						Do(func(ctx context.Context, cr []models.Classroom) {
 
 							wg.Done()
 
-						}).Return(nil)
+						}).Return(uint64(0), nil)
 
 					for i := 0; i < classroomsLen; i++ {
 
@@ -139,13 +139,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((classroomsLen - capacity + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).
 						AnyTimes().
 						Do(func(ctx context.Context, cr []models.Classroom) {
 
 							wg.Done()
 
-						}).Return(nil)
+						}).Return(uint64(0), nil)
 
 					for i := 0; i < classroomsLen; i++ {
 
@@ -173,13 +173,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((capacity + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).
 						AnyTimes().
 						Do(func(ctx context.Context, cr []models.Classroom) {
 
 							wg.Done()
 
-						}).Return(nil)
+						}).Return(uint64(0), nil)
 
 					for i := 0; i < classroomsLen; i++ {
 
@@ -213,13 +213,13 @@ var _ = Describe("Saver", func() {
 
 					wg.Add((classroomsLen + 1) / chunkSize)
 
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).
 						AnyTimes().
 						Do(func(ctx context.Context, cr []models.Classroom) {
 
 							wg.Done()
 
-						}).Return(nil)
+						}).Return(uint64(0), nil)
 
 					for i := 0; i < classroomsLen; i++ {
 

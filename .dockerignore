@@ -1,0 +1,8 @@
+Dockerfile
+docker-compose.yml
+README.md
+.gitignore
+.git
+bin
+vendor.protogen
+db

@@ -320,6 +320,194 @@ func (x *CreateClassroomV1Response) GetClassroomId() uint64 {
 	return 0
 }
 
+type MultiCreateClassroomV1Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Classrooms []*CreateClassroomV1Request `protobuf:"bytes,1,rep,name=classrooms,proto3" json:"classrooms,omitempty"`
+}
+
+func (x *MultiCreateClassroomV1Request) Reset() {
+	*x = MultiCreateClassroomV1Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MultiCreateClassroomV1Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MultiCreateClassroomV1Request) ProtoMessage() {}
+
+func (x *MultiCreateClassroomV1Request) ProtoReflect() protoreflect.Message {
+	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MultiCreateClassroomV1Request.ProtoReflect.Descriptor instead.
+func (*MultiCreateClassroomV1Request) Descriptor() ([]byte, []int) {
+	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *MultiCreateClassroomV1Request) GetClassrooms() []*CreateClassroomV1Request {
+	if x != nil {
+		return x.Classrooms
+	}
+	return nil
+}
+
+type MultiCreateClassroomV1Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CreatedCount uint64 `protobuf:"varint,1,opt,name=created_count,json=createdCount,proto3" json:"created_count,omitempty"`
+}
+
+func (x *MultiCreateClassroomV1Response) Reset() {
+	*x = MultiCreateClassroomV1Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *MultiCreateClassroomV1Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MultiCreateClassroomV1Response) ProtoMessage() {}
+
+func (x *MultiCreateClassroomV1Response) ProtoReflect() protoreflect.Message {
+	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MultiCreateClassroomV1Response.ProtoReflect.Descriptor instead.
+func (*MultiCreateClassroomV1Response) Descriptor() ([]byte, []int) {
+	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *MultiCreateClassroomV1Response) GetCreatedCount() uint64 {
+	if x != nil {
+		return x.CreatedCount
+	}
+	return 0
+}
+
+type UpdateClassroomV1Request struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Classroom *Classroom `protobuf:"bytes,1,opt,name=classroom,proto3" json:"classroom,omitempty"`
+}
+
+func (x *UpdateClassroomV1Request) Reset() {
+	*x = UpdateClassroomV1Request{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateClassroomV1Request) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateClassroomV1Request) ProtoMessage() {}
+
+func (x *UpdateClassroomV1Request) ProtoReflect() protoreflect.Message {
+	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateClassroomV1Request.ProtoReflect.Descriptor instead.
+func (*UpdateClassroomV1Request) Descriptor() ([]byte, []int) {
+	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateClassroomV1Request) GetClassroom() *Classroom {
+	if x != nil {
+		return x.Classroom
+	}
+	return nil
+}
+
+type UpdateClassroomV1Response struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Found bool `protobuf:"varint,1,opt,name=found,proto3" json:"found,omitempty"`
+}
+
+func (x *UpdateClassroomV1Response) Reset() {
+	*x = UpdateClassroomV1Response{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *UpdateClassroomV1Response) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateClassroomV1Response) ProtoMessage() {}
+
+func (x *UpdateClassroomV1Response) ProtoReflect() protoreflect.Message {
+	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateClassroomV1Response.ProtoReflect.Descriptor instead.
+func (*UpdateClassroomV1Response) Descriptor() ([]byte, []int) {
+	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateClassroomV1Response) GetFound() bool {
+	if x != nil {
+		return x.Found
+	}
+	return false
+}
+
 type RemoveClassroomV1Request struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -331,7 +519,7 @@ type RemoveClassroomV1Request struct {
 func (x *RemoveClassroomV1Request) Reset() {
 	*x = RemoveClassroomV1Request{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[6]
+		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -344,7 +532,7 @@ func (x *RemoveClassroomV1Request) String() string {
 func (*RemoveClassroomV1Request) ProtoMessage() {}
 
 func (x *RemoveClassroomV1Request) ProtoReflect() protoreflect.Message {
-	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[6]
+	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -357,7 +545,7 @@ func (x *RemoveClassroomV1Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveClassroomV1Request.ProtoReflect.Descriptor instead.
 func (*RemoveClassroomV1Request) Descriptor() ([]byte, []int) {
-	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{6}
+	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *RemoveClassroomV1Request) GetClassroomId() uint64 {
@@ -378,7 +566,7 @@ type RemoveClassroomV1Response struct {
 func (x *RemoveClassroomV1Response) Reset() {
 	*x = RemoveClassroomV1Response{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[7]
+		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -391,7 +579,7 @@ func (x *RemoveClassroomV1Response) String() string {
 func (*RemoveClassroomV1Response) ProtoMessage() {}
 
 func (x *RemoveClassroomV1Response) ProtoReflect() protoreflect.Message {
-	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[7]
+	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -404,7 +592,7 @@ func (x *RemoveClassroomV1Response) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RemoveClassroomV1Response.ProtoReflect.Descriptor instead.
 func (*RemoveClassroomV1Response) Descriptor() ([]byte, []int) {
-	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{7}
+	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *RemoveClassroomV1Response) GetFound() bool {
@@ -427,7 +615,7 @@ type Classroom struct {
 func (x *Classroom) Reset() {
 	*x = Classroom{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[8]
+		mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -440,7 +628,7 @@ func (x *Classroom) String() string {
 func (*Classroom) ProtoMessage() {}
 
 func (x *Classroom) ProtoReflect() protoreflect.Message {
-	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[8]
+	mi := &file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -453,7 +641,7 @@ func (x *Classroom) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Classroom.ProtoReflect.Descriptor instead.
 func (*Classroom) Descriptor() ([]byte, []int) {
-	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{8}
+	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *Classroom) GetClassroomId() uint64 {
@@ -522,6 +710,26 @@ var file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDesc = []byte{
 	0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a,
 	0x0c, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x04, 0x52, 0x0b, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x49, 0x64,
+	0x22, 0x6c, 0x0a, 0x1d, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x43,
+	0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x4b, 0x0a, 0x0a, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x18,
+	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x2b, 0x2e, 0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73,
+	0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x52, 0x0a, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x22, 0x45,
+	0x0a, 0x1e, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x43, 0x6c, 0x61,
+	0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x12, 0x23, 0x0a, 0x0d, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x63, 0x6f, 0x75, 0x6e,
+	0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0c, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64,
+	0x43, 0x6f, 0x75, 0x6e, 0x74, 0x22, 0x56, 0x0a, 0x18, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43,
+	0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x3a, 0x0a, 0x09, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x1c, 0x2e, 0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73,
+	0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f,
+	0x6f, 0x6d, 0x52, 0x09, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x22, 0x31, 0x0a,
+	0x19, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d,
+	0x56, 0x31, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x66, 0x6f,
+	0x75, 0x6e, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05, 0x66, 0x6f, 0x75, 0x6e, 0x64,
 	0x22, 0x46, 0x0a, 0x18, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72,
 	0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x2a, 0x0a, 0x0c,
 	0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
@@ -538,7 +746,7 @@ var file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDesc = []byte{
 	0x00, 0x52, 0x08, 0x74, 0x65, 0x6e, 0x61, 0x6e, 0x74, 0x49, 0x64, 0x12, 0x28, 0x0a, 0x0b, 0x63,
 	0x61, 0x6c, 0x65, 0x6e, 0x64, 0x61, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x03, 0x20, 0x01, 0x28, 0x04,
 	0x42, 0x07, 0xfa, 0x42, 0x04, 0x32, 0x02, 0x20, 0x00, 0x52, 0x0a, 0x63, 0x61, 0x6c, 0x65, 0x6e,
-	0x64, 0x61, 0x72, 0x49, 0x64, 0x32, 0xd6, 0x04, 0x0a, 0x0f, 0x4f, 0x63, 0x70, 0x43, 0x6c, 0x61,
+	0x64, 0x61, 0x72, 0x49, 0x64, 0x32, 0xf7, 0x06, 0x0a, 0x0f, 0x4f, 0x63, 0x70, 0x43, 0x6c, 0x61,
 	0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x41, 0x70, 0x69, 0x12, 0x83, 0x01, 0x0a, 0x10, 0x4c, 0x69,
 	0x73, 0x74, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x56, 0x31, 0x12, 0x2a,
 	0x2e, 0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61,
@@ -566,22 +774,40 @@ var file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDesc = []byte{
 	0x2e, 0x61, 0x70, 0x69, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73,
 	0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x16,
 	0x82, 0xd3, 0xe4, 0x93, 0x02, 0x10, 0x22, 0x0e, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6c, 0x61, 0x73,
-	0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x12, 0x95, 0x01, 0x0a, 0x11, 0x52, 0x65, 0x6d, 0x6f, 0x76,
-	0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x12, 0x2b, 0x2e, 0x6f,
-	0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69,
-	0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d,
-	0x56, 0x31, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2c, 0x2e, 0x6f, 0x63, 0x70, 0x2e,
-	0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x52, 0x65,
-	0x6d, 0x6f, 0x76, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x25, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1f, 0x2a,
-	0x1d, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x2f,
-	0x7b, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x5f, 0x69, 0x64, 0x7d, 0x42, 0x4d,
-	0x5a, 0x4b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x7a, 0x6f,
-	0x6e, 0x63, 0x70, 0x2f, 0x6f, 0x63, 0x70, 0x2d, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f,
-	0x6d, 0x2d, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x6f, 0x63, 0x70, 0x2d, 0x63, 0x6c,
-	0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2d, 0x61, 0x70, 0x69, 0x3b, 0x6f, 0x63, 0x70, 0x5f,
-	0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x5f, 0x61, 0x70, 0x69, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x12, 0x95, 0x01, 0x0a, 0x16, 0x4d, 0x75, 0x6c, 0x74, 0x69,
+	0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56,
+	0x31, 0x12, 0x30, 0x2e, 0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f,
+	0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x43, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x71, 0x75,
+	0x65, 0x73, 0x74, 0x1a, 0x31, 0x2e, 0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72,
+	0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x4d, 0x75, 0x6c, 0x74, 0x69, 0x43, 0x72, 0x65,
+	0x61, 0x74, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x16, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x10, 0x22, 0x0e,
+	0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x12, 0x86,
+	0x01, 0x0a, 0x11, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f,
+	0x6f, 0x6d, 0x56, 0x31, 0x12, 0x2b, 0x2e, 0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73,
+	0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43,
+	0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x1a, 0x2c, 0x2e, 0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f,
+	0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x43, 0x6c, 0x61, 0x73,
+	0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x16, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x10, 0x22, 0x0e, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6c, 0x61,
+	0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73, 0x12, 0x95, 0x01, 0x0a, 0x11, 0x52, 0x65, 0x6d, 0x6f,
+	0x76, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31, 0x12, 0x2b, 0x2e,
+	0x6f, 0x63, 0x70, 0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70,
+	0x69, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f,
+	0x6d, 0x56, 0x31, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x2c, 0x2e, 0x6f, 0x63, 0x70,
+	0x2e, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2e, 0x61, 0x70, 0x69, 0x2e, 0x52,
+	0x65, 0x6d, 0x6f, 0x76, 0x65, 0x43, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x56, 0x31,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x25, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1f,
+	0x2a, 0x1d, 0x2f, 0x76, 0x31, 0x2f, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x73,
+	0x2f, 0x7b, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x5f, 0x69, 0x64, 0x7d, 0x42,
+	0x4d, 0x5a, 0x4b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x6f, 0x7a,
+	0x6f, 0x6e, 0x63, 0x70, 0x2f, 0x6f, 0x63, 0x70, 0x2d, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f,
+	0x6f, 0x6d, 0x2d, 0x61, 0x70, 0x69, 0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x6f, 0x63, 0x70, 0x2d, 0x63,
+	0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x2d, 0x61, 0x70, 0x69, 0x3b, 0x6f, 0x63, 0x70,
+	0x5f, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x72, 0x6f, 0x6f, 0x6d, 0x5f, 0x61, 0x70, 0x69, 0x62, 0x06,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -596,34 +822,44 @@ func file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescGZIP() []byte {
 	return file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDescData
 }
 
-var file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_api_ocp_classroom_api_ocp_classroom_api_proto_goTypes = []interface{}{
-	(*ListClassroomsV1Request)(nil),     // 0: ocp.classroom.api.ListClassroomsV1Request
-	(*ListClassroomsV1Response)(nil),    // 1: ocp.classroom.api.ListClassroomsV1Response
-	(*DescribeClassroomV1Request)(nil),  // 2: ocp.classroom.api.DescribeClassroomV1Request
-	(*DescribeClassroomV1Response)(nil), // 3: ocp.classroom.api.DescribeClassroomV1Response
-	(*CreateClassroomV1Request)(nil),    // 4: ocp.classroom.api.CreateClassroomV1Request
-	(*CreateClassroomV1Response)(nil),   // 5: ocp.classroom.api.CreateClassroomV1Response
-	(*RemoveClassroomV1Request)(nil),    // 6: ocp.classroom.api.RemoveClassroomV1Request
-	(*RemoveClassroomV1Response)(nil),   // 7: ocp.classroom.api.RemoveClassroomV1Response
-	(*Classroom)(nil),                   // 8: ocp.classroom.api.Classroom
+	(*ListClassroomsV1Request)(nil),        // 0: ocp.classroom.api.ListClassroomsV1Request
+	(*ListClassroomsV1Response)(nil),       // 1: ocp.classroom.api.ListClassroomsV1Response
+	(*DescribeClassroomV1Request)(nil),     // 2: ocp.classroom.api.DescribeClassroomV1Request
+	(*DescribeClassroomV1Response)(nil),    // 3: ocp.classroom.api.DescribeClassroomV1Response
+	(*CreateClassroomV1Request)(nil),       // 4: ocp.classroom.api.CreateClassroomV1Request
+	(*CreateClassroomV1Response)(nil),      // 5: ocp.classroom.api.CreateClassroomV1Response
+	(*MultiCreateClassroomV1Request)(nil),  // 6: ocp.classroom.api.MultiCreateClassroomV1Request
+	(*MultiCreateClassroomV1Response)(nil), // 7: ocp.classroom.api.MultiCreateClassroomV1Response
+	(*UpdateClassroomV1Request)(nil),       // 8: ocp.classroom.api.UpdateClassroomV1Request
+	(*UpdateClassroomV1Response)(nil),      // 9: ocp.classroom.api.UpdateClassroomV1Response
+	(*RemoveClassroomV1Request)(nil),       // 10: ocp.classroom.api.RemoveClassroomV1Request
+	(*RemoveClassroomV1Response)(nil),      // 11: ocp.classroom.api.RemoveClassroomV1Response
+	(*Classroom)(nil),                      // 12: ocp.classroom.api.Classroom
 }
 var file_api_ocp_classroom_api_ocp_classroom_api_proto_depIdxs = []int32{
-	8, // 0: ocp.classroom.api.ListClassroomsV1Response.classrooms:type_name -> ocp.classroom.api.Classroom
-	8, // 1: ocp.classroom.api.DescribeClassroomV1Response.classroom:type_name -> ocp.classroom.api.Classroom
-	0, // 2: ocp.classroom.api.OcpClassroomApi.ListClassroomsV1:input_type -> ocp.classroom.api.ListClassroomsV1Request
-	2, // 3: ocp.classroom.api.OcpClassroomApi.DescribeClassroomV1:input_type -> ocp.classroom.api.DescribeClassroomV1Request
-	4, // 4: ocp.classroom.api.OcpClassroomApi.CreateClassroomV1:input_type -> ocp.classroom.api.CreateClassroomV1Request
-	6, // 5: ocp.classroom.api.OcpClassroomApi.RemoveClassroomV1:input_type -> ocp.classroom.api.RemoveClassroomV1Request
-	1, // 6: ocp.classroom.api.OcpClassroomApi.ListClassroomsV1:output_type -> ocp.classroom.api.ListClassroomsV1Response
-	3, // 7: ocp.classroom.api.OcpClassroomApi.DescribeClassroomV1:output_type -> ocp.classroom.api.DescribeClassroomV1Response
-	5, // 8: ocp.classroom.api.OcpClassroomApi.CreateClassroomV1:output_type -> ocp.classroom.api.CreateClassroomV1Response
-	7, // 9: ocp.classroom.api.OcpClassroomApi.RemoveClassroomV1:output_type -> ocp.classroom.api.RemoveClassroomV1Response
-	6, // [6:10] is the sub-list for method output_type
-	2, // [2:6] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	12, // 0: ocp.classroom.api.ListClassroomsV1Response.classrooms:type_name -> ocp.classroom.api.Classroom
+	12, // 1: ocp.classroom.api.DescribeClassroomV1Response.classroom:type_name -> ocp.classroom.api.Classroom
+	4,  // 2: ocp.classroom.api.MultiCreateClassroomV1Request.classrooms:type_name -> ocp.classroom.api.CreateClassroomV1Request
+	12, // 3: ocp.classroom.api.UpdateClassroomV1Request.classroom:type_name -> ocp.classroom.api.Classroom
+	0,  // 4: ocp.classroom.api.OcpClassroomApi.ListClassroomsV1:input_type -> ocp.classroom.api.ListClassroomsV1Request
+	2,  // 5: ocp.classroom.api.OcpClassroomApi.DescribeClassroomV1:input_type -> ocp.classroom.api.DescribeClassroomV1Request
+	4,  // 6: ocp.classroom.api.OcpClassroomApi.CreateClassroomV1:input_type -> ocp.classroom.api.CreateClassroomV1Request
+	6,  // 7: ocp.classroom.api.OcpClassroomApi.MultiCreateClassroomV1:input_type -> ocp.classroom.api.MultiCreateClassroomV1Request
+	8,  // 8: ocp.classroom.api.OcpClassroomApi.UpdateClassroomV1:input_type -> ocp.classroom.api.UpdateClassroomV1Request
+	10, // 9: ocp.classroom.api.OcpClassroomApi.RemoveClassroomV1:input_type -> ocp.classroom.api.RemoveClassroomV1Request
+	1,  // 10: ocp.classroom.api.OcpClassroomApi.ListClassroomsV1:output_type -> ocp.classroom.api.ListClassroomsV1Response
+	3,  // 11: ocp.classroom.api.OcpClassroomApi.DescribeClassroomV1:output_type -> ocp.classroom.api.DescribeClassroomV1Response
+	5,  // 12: ocp.classroom.api.OcpClassroomApi.CreateClassroomV1:output_type -> ocp.classroom.api.CreateClassroomV1Response
+	7,  // 13: ocp.classroom.api.OcpClassroomApi.MultiCreateClassroomV1:output_type -> ocp.classroom.api.MultiCreateClassroomV1Response
+	9,  // 14: ocp.classroom.api.OcpClassroomApi.UpdateClassroomV1:output_type -> ocp.classroom.api.UpdateClassroomV1Response
+	11, // 15: ocp.classroom.api.OcpClassroomApi.RemoveClassroomV1:output_type -> ocp.classroom.api.RemoveClassroomV1Response
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_api_ocp_classroom_api_ocp_classroom_api_proto_init() }
@@ -705,7 +941,7 @@ func file_api_ocp_classroom_api_ocp_classroom_api_proto_init() {
 			}
 		}
 		file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RemoveClassroomV1Request); i {
+			switch v := v.(*MultiCreateClassroomV1Request); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -717,7 +953,7 @@ func file_api_ocp_classroom_api_ocp_classroom_api_proto_init() {
 			}
 		}
 		file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*RemoveClassroomV1Response); i {
+			switch v := v.(*MultiCreateClassroomV1Response); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -729,6 +965,54 @@ func file_api_ocp_classroom_api_ocp_classroom_api_proto_init() {
 			}
 		}
 		file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateClassroomV1Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateClassroomV1Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RemoveClassroomV1Request); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RemoveClassroomV1Response); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_api_ocp_classroom_api_ocp_classroom_api_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*Classroom); i {
 			case 0:
 				return &v.state
@@ -747,7 +1031,7 @@ func file_api_ocp_classroom_api_ocp_classroom_api_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_api_ocp_classroom_api_ocp_classroom_api_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

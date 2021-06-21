@@ -3,126 +3,153 @@ package main
 import (
 	"context"
 	"fmt"
-	"os"
-	"time"
+	"net"
+	"net/http"
 
+	"github.com/caarlos0/env/v6"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rs/zerolog/log"
 
-	"github.com/golang/mock/gomock"
-	"github.com/onsi/ginkgo"
+	"google.golang.org/grpc"
 
-	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
-	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
-	"github.com/ozoncp/ocp-classroom-api/internal/models"
-	"github.com/ozoncp/ocp-classroom-api/internal/saver"
+	"github.com/uber/jaeger-client-go"
+	"github.com/uber/jaeger-lib/metrics"
+
+	jaegercfg "github.com/uber/jaeger-client-go/config"
+	jaegerlog "github.com/uber/jaeger-client-go/log"
+
+	"github.com/ozoncp/ocp-classroom-api/internal/api"
+	prom "github.com/ozoncp/ocp-classroom-api/internal/metrics"
+	"github.com/ozoncp/ocp-classroom-api/internal/producer"
+	"github.com/ozoncp/ocp-classroom-api/internal/repo"
+
+	desc "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
+
+const logPrefix = "ocp-classroom-api service: "
+
+// envDefault for local machine
+type config struct {
+	Endpoint string `env:"ENDPOINT" envDefault:"0.0.0.0:7002"`
+
+	RepoDatabase string `env:"POSTGRES_DB" envDefault:"postgres"`
+	RepoUser     string `env:"POSTGRES_USER" envDefault:"postgres"`
+	RepoPassword string `env:"POSTGRES_PASSWORD" envDefault:"postgres"`
+	RepoEndpoint string `env:"POSTGRES_ENDPOINT" envDefault:"127.0.0.1:5432"`
+
+	KafkaBroker string `env:"KAFKA_BROKER" envDefault:"127.0.0.1:9094"`
+
+	JaegerEndpoint string `env:"JAEGER_ENDPOINT" envDefault:"127.0.0.1:6831"`
+}
 
 func main() {
 
+	cfg := config{}
+	if err := env.Parse(&cfg); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to read configs")
+	}
+
 	introduce()
 
-	cmd := 0
-	fmt.Print("What to call? (0 - concurrency, 1 - file): ")
-	fmt.Scan(&cmd)
-	fmt.Println()
+	log.Debug().Msg(logPrefix + "started")
 
-	log.Debug().Int("cmd", cmd).Send()
-
-	if cmd == 0 {
-
-		doConcurrencyWork()
-
-	} else if cmd == 1 {
-
-		doFileWork()
-
+	if err := initGlobalTracer("ocp-classroom-api", cfg.JaegerEndpoint); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to init tracer")
 	}
+
+	go runMetrics()
+
+	run(&cfg)
 }
 
 func introduce() {
-	fmt.Println("Hello World! I'm ocp-classroom-api package by Aleksandr Kuzminykh.")
+	fmt.Println("Hello World! I'm ocp-classroom-api service by Aleksandr Kuzminykh.")
 }
 
-func doFileWork() {
+func run(cfg *config) {
 
-	log.Debug().Msg("doFileWork...")
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	openReadCloseFile := func(i int) {
-
-		file, err := os.Open("hello.txt")
-
-		if err != nil {
-			log.Fatal().Err(err).Msg("Unable to create file")
-		}
-
-		defer func() {
-			file.Close()
-			log.Info().Msg("Closing file for " + fmt.Sprint(i+1) + " th time")
-		}()
-
-		var bytes []byte = make([]byte, 1024)
-		var bytesCount int
-
-		bytesCount, err = file.Read(bytes)
-
-		log.Info().Str("File", string(bytes[:bytesCount])).Msg("Reading file for" + fmt.Sprint(i+1) + "th time")
-
-		if err != nil {
-			log.Fatal().Err(err).Msg("Unable to write to file")
-		}
-	}
-
-	for i := 0; i < 10; i++ {
-
-		openReadCloseFile(i)
-
-		time.Sleep(1 * time.Second)
-	}
-}
-
-func doConcurrencyWork() {
-
-	log.Debug().Msg("doConcurrencyWork...")
-
-	ctrl := gomock.NewController(ginkgo.GinkgoT())
-	mockRepo := mocks.NewMockRepo(ctrl)
-
-	saver, err := saver.New(5, saver.Policy_DropAll, time.Second*15, flusher.New(mockRepo, 3))
-
+	listen, err := net.Listen("tcp", cfg.Endpoint)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to get new Saver instance")
+		log.Fatal().Err(err).Msg(logPrefix + "failed to listen")
 	}
 
-	ctx := context.Background()
-
-	mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).AnyTimes().Return(nil)
-
-	saver.Init(ctx)
-
-	var classroomId uint64 = 0
-
-	for {
-
-		fmt.Print("Enter the command ('s' - save, 'x' - exit): ")
-
-		var cmd string
-		fmt.Scan(&cmd)
-
-		log.Debug().Str("cmd", cmd).Send()
-
-		if cmd == "s" {
-
-			classroomId++
-
-			saver.Save(models.Classroom{Id: classroomId, TenantId: classroomId, CalendarId: classroomId})
-
-		} else if cmd == "x" {
-
-			break
-		}
-
-		time.Sleep(time.Millisecond * 100)
+	repoArgs := &repo.RepoArgs{
+		User:     cfg.RepoUser,
+		Password: cfg.RepoPassword,
+		Endpoint: cfg.RepoEndpoint,
+		DbName:   cfg.RepoDatabase,
+		SslMode:  "disable",
 	}
 
-	saver.Close()
+	repo, err := repo.GetConnectedRepo(ctx, repoArgs)
+	if err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
+	}
+
+	logProducer, err := producer.New(ctx, cfg.KafkaBroker)
+	if err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to create log producer")
+	}
+
+	s := grpc.NewServer()
+	desc.RegisterOcpClassroomApiServer(s, api.NewOcpClassroomApi(repo, logProducer))
+
+	log.Debug().Str("endpoint", cfg.Endpoint).Msg(logPrefix + "is listening")
+
+	if err := s.Serve(listen); err != nil {
+		log.Fatal().Err(err).Msg(logPrefix + "failed to serve")
+	}
 }
+
+func runMetrics() {
+
+	prom.RegisterMetrics()
+	http.Handle("/metrics", promhttp.Handler())
+
+	err := http.ListenAndServe(":9100", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
+// Tip for me: run jaeger in docker and watch trace of MultiCreateClassroomV1 rpc
+// at Jaeger UI http://localhost:16686/search
+
+func initGlobalTracer(serviceName, jaegerEndpoint string) error {
+	// Sample configuration for testing. Use constant sampling to sample every trace
+	// and enable LogSpan to log every span via configured Logger.
+	cfg := jaegercfg.Configuration{
+		Sampler: &jaegercfg.SamplerConfig{
+			Type:  jaeger.SamplerTypeConst,
+			Param: 1,
+		},
+		Reporter: &jaegercfg.ReporterConfig{
+			LogSpans:           true,
+			LocalAgentHostPort: jaegerEndpoint,
+		},
+	}
+
+	// Example logger and metrics factory. Use github.com/uber/jaeger-client-go/log
+	// and github.com/uber/jaeger-lib/metrics respectively to bind to real logging and metrics
+	// frameworks.
+	jLogger := jaegerlog.StdLogger
+	jMetricsFactory := metrics.NullFactory
+
+	// Initialize tracer with a logger and a metrics factory
+	_, err := cfg.InitGlobalTracer(
+		serviceName,
+		jaegercfg.Logger(jLogger),
+		jaegercfg.Metrics(jMetricsFactory),
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// CreateClassroomV1
+// curl -X POST -d "tenant_id=5&calendar_id=5" localhost:8080/v1/classrooms

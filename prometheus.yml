@@ -1,0 +1,7 @@
+global:
+  scrape_interval:     10s
+
+scrape_configs:
+  - job_name: 'ocp-classroom-api'
+    static_configs:
+      - targets: ['ocp-classroom-api:9100', "host.docker.internal:9100"]

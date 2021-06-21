@@ -2,85 +2,99 @@ package api
 
 import (
 	"context"
-
-	"github.com/rs/zerolog/log"
+	"errors"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	opentracing "github.com/opentracing/opentracing-go"
+
+	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
+	"github.com/ozoncp/ocp-classroom-api/internal/metrics"
 	"github.com/ozoncp/ocp-classroom-api/internal/models"
+	"github.com/ozoncp/ocp-classroom-api/internal/producer"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
+	"github.com/ozoncp/ocp-classroom-api/internal/utils"
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
+// chunkSize is used for MultiCreateClassroomV1
+const chunkSize int = 5
+
+// api implements gRPC server and operates with DB
 type api struct {
 	grpcApi.UnimplementedOcpClassroomApiServer
 	classroomRepo repo.Repo
+	logProducer   producer.LogProducer
 }
 
+// ListClassroomsV1 returns list of classrooms from DB
 func (a *api) ListClassroomsV1(ctx context.Context,
-	req *grpcApi.ListClassroomsV1Request) (*grpcApi.ListClassroomsV1Response, error) {
+	req *grpcApi.ListClassroomsV1Request) (res *grpcApi.ListClassroomsV1Response, err error) {
 
-	if err := req.Validate(); err != nil {
+	defer utils.LogGrpcCall("CreateClassroomV1", &req, &res, &err)
 
-		log.Error().Err(err).Msg("Request failed validation")
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+	if err = req.Validate(); err != nil {
+
+		err = status.Error(codes.InvalidArgument, err.Error())
+		return nil, err
 	}
 
 	classrooms, err := a.classroomRepo.ListClassrooms(ctx, req.Limit, req.Offset)
 	if err != nil {
 
-		log.Error().Err(err).Msg("Failed to list classrooms")
+		err = status.Error(codes.Unavailable, err.Error())
 		return nil, err
 	}
 
 	var protoClassrooms []*grpcApi.Classroom
-
 	for _, classroom := range classrooms {
 
 		protoClassrooms = append(protoClassrooms, classroom.ToProtoClassroom())
 	}
 
-	log.Debug().
-		Uint64("Limit", req.Limit).
-		Uint64("Offset", req.Offset).
-		Msgf("ListClassroomV1 call: %v", protoClassrooms)
-
-	return &grpcApi.ListClassroomsV1Response{Classrooms: protoClassrooms}, nil
+	res = &grpcApi.ListClassroomsV1Response{Classrooms: protoClassrooms}
+	return res, nil
 }
 
+// DescribeClassroomV1 returns classroom from DB requested by id
 func (a *api) DescribeClassroomV1(ctx context.Context,
-	req *grpcApi.DescribeClassroomV1Request) (*grpcApi.DescribeClassroomV1Response, error) {
+	req *grpcApi.DescribeClassroomV1Request) (res *grpcApi.DescribeClassroomV1Response, err error) {
 
-	if err := req.Validate(); err != nil {
+	defer utils.LogGrpcCall("CreateClassroomV1", &req, &res, &err)
 
-		log.Error().Err(err).Msg("Request failed validation")
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+	if err = req.Validate(); err != nil {
+
+		err = status.Error(codes.InvalidArgument, err.Error())
+		return nil, err
 	}
 
 	classroom, err := a.classroomRepo.DescribeClassroom(ctx, req.ClassroomId)
 	if err != nil {
 
-		log.Error().Err(err).Msg("Failed to describe classroom")
+		err = status.Error(codes.Unavailable, err.Error())
 		return nil, err
 	}
 
 	protoClassroom := classroom.ToProtoClassroom()
 
-	log.Debug().
-		Uint64("ClassroomId", req.ClassroomId).
-		Msgf("DescribeClassroomV1 call: %v", protoClassroom)
-
-	return &grpcApi.DescribeClassroomV1Response{Classroom: protoClassroom}, nil
+	res = &grpcApi.DescribeClassroomV1Response{Classroom: protoClassroom}
+	return res, nil
 }
 
+// CreateClassroomV1 returns id of created classroom in DB by passed tenantId and calendarId
 func (a *api) CreateClassroomV1(ctx context.Context,
-	req *grpcApi.CreateClassroomV1Request) (*grpcApi.CreateClassroomV1Response, error) {
+	req *grpcApi.CreateClassroomV1Request) (res *grpcApi.CreateClassroomV1Response, err error) {
 
-	if err := req.Validate(); err != nil {
+	defer utils.LogGrpcCall("CreateClassroomV1", &req, &res, &err)
+	defer func() {
+		_ = a.logProducer.Send(producer.Created, req, res, err)
+	}()
 
-		log.Error().Err(err).Msg("Request failed validation")
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+	if err = req.Validate(); err != nil {
+
+		err = status.Error(codes.InvalidArgument, err.Error())
+		return nil, err
 	}
 
 	classroomId, err := a.classroomRepo.AddClassroom(ctx, models.Classroom{
@@ -89,41 +103,122 @@ func (a *api) CreateClassroomV1(ctx context.Context,
 	})
 	if err != nil {
 
-		log.Error().Err(err).Msg("Failed to add classroom")
+		err = status.Error(codes.Unavailable, err.Error())
 		return nil, err
 	}
 
-	log.Debug().
-		Uint64("TenantId", req.TenantId).
-		Uint64("CalendarId", req.CalendarId).
-		Msgf("CreateClassroomV1 call: %v", classroomId)
+	metrics.IncCreateCounter()
 
-	return &grpcApi.CreateClassroomV1Response{ClassroomId: classroomId}, nil
+	res = &grpcApi.CreateClassroomV1Response{ClassroomId: classroomId}
+	return res, nil
 }
 
+// MultiCreateClassroomV1 returns count of created classrooms in DB by passed list of tenantId and calendarId
+func (a *api) MultiCreateClassroomV1(ctx context.Context,
+	req *grpcApi.MultiCreateClassroomV1Request) (res *grpcApi.MultiCreateClassroomV1Response, err error) {
+
+	defer utils.LogGrpcCall("MultiCreateClassroomV1", &req, &res, &err)
+
+	tracer := opentracing.GlobalTracer()
+	span := tracer.StartSpan("MultiCreateClassroomV1")
+	defer span.Finish()
+
+	if err = req.Validate(); err != nil {
+
+		err = status.Error(codes.InvalidArgument, err.Error())
+		return nil, err
+	}
+
+	var classrooms []models.Classroom
+	for _, protoClassroom := range req.Classrooms {
+
+		classrooms = append(classrooms, models.Classroom{
+			TenantId:   protoClassroom.TenantId,
+			CalendarId: protoClassroom.CalendarId,
+		})
+	}
+
+	fl := flusher.New(a.classroomRepo, chunkSize)
+	remainingClassrooms := fl.Flush(ctx, span, classrooms)
+
+	var createdCount = uint64(len(classrooms) - len(remainingClassrooms))
+	if createdCount == 0 {
+
+		err = status.Error(codes.Unavailable, errors.New("flush call returned non nil result").Error())
+		return nil, err
+	}
+
+	res = &grpcApi.MultiCreateClassroomV1Response{CreatedCount: createdCount}
+	return res, nil
+}
+
+// UpdateClassroomV1 changes classroom in DB by passed id and new tenantId and calendarId
+// and returns whether classroom was changed
+func (a *api) UpdateClassroomV1(ctx context.Context,
+	req *grpcApi.UpdateClassroomV1Request) (res *grpcApi.UpdateClassroomV1Response, err error) {
+
+	defer utils.LogGrpcCall("UpdateClassroomV1", &req, &res, &err)
+	defer func() {
+		_ = a.logProducer.Send(producer.Updated, req, res, err)
+	}()
+
+	if err = req.Validate(); err != nil {
+
+		err = status.Error(codes.InvalidArgument, err.Error())
+		return nil, err
+	}
+
+	classroom := models.FromProtoClassroom(req.Classroom)
+
+	found, err := a.classroomRepo.UpdateClassroom(ctx, *classroom)
+	if err != nil {
+
+		err = status.Error(codes.Unavailable, err.Error())
+		return nil, err
+	}
+
+	if found {
+		metrics.IncUpdateCounter()
+	}
+
+	res = &grpcApi.UpdateClassroomV1Response{Found: found}
+	return res, nil
+}
+
+// RemoveClassroomV1 removes classroom from DB by passed id and returs whether classroom was removed
 func (a *api) RemoveClassroomV1(ctx context.Context,
-	req *grpcApi.RemoveClassroomV1Request) (*grpcApi.RemoveClassroomV1Response, error) {
+	req *grpcApi.RemoveClassroomV1Request) (res *grpcApi.RemoveClassroomV1Response, err error) {
 
-	if err := req.Validate(); err != nil {
+	defer utils.LogGrpcCall("RemoveClassroomV1", &req, &res, &err)
+	defer func() {
+		_ = a.logProducer.Send(producer.Removed, req, res, err)
+	}()
 
-		log.Error().Err(err).Msg("Request failed validation")
-		return nil, status.Error(codes.InvalidArgument, err.Error())
+	if err = req.Validate(); err != nil {
+
+		err = status.Error(codes.InvalidArgument, err.Error())
+		return nil, err
 	}
 
 	found, err := a.classroomRepo.RemoveClassroom(ctx, req.ClassroomId)
 	if err != nil {
 
-		log.Error().Err(err).Msg("Failed to remove classroom")
+		err = status.Error(codes.Unavailable, err.Error())
 		return nil, err
 	}
 
-	log.Debug().
-		Uint64("ClassroomId", req.ClassroomId).
-		Msgf("RemoveClassroomV1 call: %v", found)
+	if found {
+		metrics.IncRemoveCounter()
+	}
 
-	return &grpcApi.RemoveClassroomV1Response{Found: found}, nil
+	res = &grpcApi.RemoveClassroomV1Response{Found: found}
+	return res, nil
 }
 
-func NewOcpClassroomApi(classroomRepo repo.Repo) grpcApi.OcpClassroomApiServer {
-	return &api{classroomRepo: classroomRepo}
+// NewOcpClassroomApi returns implementation of OcpClassroomApiServer interface to operate DB
+func NewOcpClassroomApi(
+	classroomRepo repo.Repo,
+	logProducer producer.LogProducer) grpcApi.OcpClassroomApiServer {
+
+	return &api{classroomRepo: classroomRepo, logProducer: logProducer}
 }

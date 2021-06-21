@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	"github.com/DATA-DOG/go-sqlmock"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/api"
+	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
@@ -25,7 +27,11 @@ var _ = Describe("Api", func() {
 		mock sqlmock.Sqlmock
 
 		classroomsRepo repo.Repo
-		apiServer      grpcApi.OcpClassroomApiServer
+
+		ctrl         *gomock.Controller
+		mockProducer *mocks.MockLogProducer
+
+		apiServer grpcApi.OcpClassroomApiServer
 	)
 
 	BeforeEach(func() {
@@ -39,7 +45,13 @@ var _ = Describe("Api", func() {
 		}
 
 		classroomsRepo = repo.New(db)
-		apiServer = api.NewOcpClassroomApi(classroomsRepo)
+
+		ctrl = gomock.NewController(GinkgoT())
+		mockProducer = mocks.NewMockLogProducer(ctrl)
+
+		mockProducer.EXPECT().Send(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).AnyTimes().Return(nil)
+
+		apiServer = api.NewOcpClassroomApi(classroomsRepo, mockProducer)
 	})
 
 	AfterEach(func() {
@@ -182,7 +194,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are not valid", func() {
 
-			It("returns error if classroom_id is 0", func() {
+			It("returns error if classroomId is 0", func() {
 
 				request := &grpcApi.DescribeClassroomV1Request{
 					ClassroomId: 0,
@@ -212,7 +224,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are valid", func() {
 
-			It("returns classroom_id if query executes", func() {
+			It("returns classroomId if query executes", func() {
 
 				request := &grpcApi.CreateClassroomV1Request{
 					TenantId:   1,
@@ -261,7 +273,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are not valid", func() {
 
-			It("returns error if tenant_id is 0 or calendar_id is 0", func() {
+			It("returns error if tenantId is 0 or calendarId is 0", func() {
 
 				request := &grpcApi.CreateClassroomV1Request{
 					TenantId:   0,
@@ -279,6 +291,206 @@ var _ = Describe("Api", func() {
 				Expect(func() {
 
 					_, err := apiServer.CreateClassroomV1(ctx, nil)
+					if err != nil {
+						Fail("error occured")
+					}
+
+				}).Should(Panic())
+			})
+		})
+	})
+
+	Describe("MultiCreateClassroom call", func() {
+
+		When("parameters are valid", func() {
+
+			It("returns createdCount if query executes", func() {
+
+				request := &grpcApi.MultiCreateClassroomV1Request{
+					Classrooms: []*grpcApi.CreateClassroomV1Request{
+						{TenantId: 1, CalendarId: 1},
+						{TenantId: 2, CalendarId: 2},
+					},
+				}
+
+				mock.ExpectExec("INSERT INTO classrooms").
+					WithArgs(request.Classrooms[0].TenantId, request.Classrooms[0].CalendarId,
+						request.Classrooms[1].TenantId, request.Classrooms[1].CalendarId).
+					WillReturnResult(sqlmock.NewResult(2, 2))
+
+				res, err := apiServer.MultiCreateClassroomV1(ctx, request)
+
+				Expect(res).ShouldNot(BeNil())
+				Expect(res.CreatedCount).Should(BeEquivalentTo(2))
+				Expect(err).ShouldNot(HaveOccurred())
+
+				if err := mock.ExpectationsWereMet(); err != nil {
+					Fail("there were unfulfilled expectations: " + err.Error())
+				}
+			})
+
+			It("returns error if query returns error", func() {
+
+				request := &grpcApi.MultiCreateClassroomV1Request{
+					Classrooms: []*grpcApi.CreateClassroomV1Request{
+						{TenantId: 1, CalendarId: 1},
+						{TenantId: 2, CalendarId: 2},
+					},
+				}
+
+				mock.ExpectExec("INSERT INTO classrooms").
+					WithArgs(request.Classrooms[0].TenantId, request.Classrooms[0].CalendarId,
+						request.Classrooms[1].TenantId, request.Classrooms[1].CalendarId).
+					WillReturnError(errors.New(""))
+
+				res, err := apiServer.MultiCreateClassroomV1(ctx, request)
+
+				Expect(res).Should(BeNil())
+				Expect(err).Should(HaveOccurred())
+
+				if err := mock.ExpectationsWereMet(); err != nil {
+					Fail("there were unfulfilled expectations: " + err.Error())
+				}
+			})
+		})
+
+		When("parameters are not valid", func() {
+
+			It("returns error if tenantId is 0 or calendarId is 0", func() {
+
+				for i := uint64(1); i < 3; i++ {
+
+					request := &grpcApi.MultiCreateClassroomV1Request{
+						Classrooms: []*grpcApi.CreateClassroomV1Request{
+							{TenantId: i - 1, CalendarId: i % 2},
+						}}
+
+					res, err := apiServer.MultiCreateClassroomV1(ctx, request)
+
+					Expect(res).Should(BeNil())
+					Expect(err).Should(HaveOccurred())
+				}
+			})
+
+			It("panics if request is nil", func() {
+
+				Expect(func() {
+
+					_, err := apiServer.MultiCreateClassroomV1(ctx, nil)
+					if err != nil {
+						Fail("error occured")
+					}
+
+				}).Should(Panic())
+			})
+		})
+	})
+
+	Describe("UpdateClassroom call", func() {
+
+		When("parameters are valid", func() {
+
+			It("returns found as true if query executes with affected rows", func() {
+
+				request := &grpcApi.UpdateClassroomV1Request{
+					Classroom: &grpcApi.Classroom{
+						ClassroomId: 1,
+						TenantId:    1,
+						CalendarId:  1,
+					},
+				}
+
+				mock.ExpectExec("UPDATE classrooms SET").
+					WithArgs(request.Classroom.TenantId, request.Classroom.CalendarId, request.Classroom.ClassroomId).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+
+				res, err := apiServer.UpdateClassroomV1(ctx, request)
+
+				Expect(res).ShouldNot(BeNil())
+				Expect(res.Found).Should(BeEquivalentTo(true))
+				Expect(err).ShouldNot(HaveOccurred())
+
+				if err := mock.ExpectationsWereMet(); err != nil {
+					Fail("there were unfulfilled expectations: " + err.Error())
+				}
+			})
+
+			It("returns found as false if query executes without affected rows", func() {
+
+				request := &grpcApi.UpdateClassroomV1Request{
+					Classroom: &grpcApi.Classroom{
+						ClassroomId: 1,
+						TenantId:    1,
+						CalendarId:  1,
+					},
+				}
+
+				mock.ExpectExec("UPDATE classrooms SET").
+					WithArgs(request.Classroom.TenantId, request.Classroom.CalendarId, request.Classroom.ClassroomId).
+					WillReturnResult(sqlmock.NewResult(1, 0))
+
+				res, err := apiServer.UpdateClassroomV1(ctx, request)
+
+				Expect(res).ShouldNot(BeNil())
+				Expect(res.Found).Should(BeEquivalentTo(false))
+				Expect(err).ShouldNot(HaveOccurred())
+
+				if err := mock.ExpectationsWereMet(); err != nil {
+					Fail("there were unfulfilled expectations: " + err.Error())
+				}
+			})
+
+			It("returns error if query returns error", func() {
+
+				request := &grpcApi.UpdateClassroomV1Request{
+					Classroom: &grpcApi.Classroom{
+						ClassroomId: 1,
+						TenantId:    1,
+						CalendarId:  1,
+					},
+				}
+
+				mock.ExpectExec("UPDATE classrooms SET").
+					WithArgs(request.Classroom.TenantId, request.Classroom.CalendarId, request.Classroom.ClassroomId).
+					WillReturnError(errors.New(""))
+
+				res, err := apiServer.UpdateClassroomV1(ctx, request)
+
+				Expect(res).Should(BeNil())
+				Expect(err).Should(HaveOccurred())
+
+				if err := mock.ExpectationsWereMet(); err != nil {
+					Fail("there were unfulfilled expectations: " + err.Error())
+				}
+			})
+		})
+
+		When("parameters are not valid", func() {
+
+			It("returns error if any param is 0", func() {
+
+				for i := uint64(1); i < 4; i++ {
+
+					request := &grpcApi.UpdateClassroomV1Request{
+						Classroom: &grpcApi.Classroom{
+							ClassroomId: i - 1,
+							TenantId:    i % 2,
+							CalendarId:  i % 3,
+						},
+					}
+
+					res, err := apiServer.UpdateClassroomV1(ctx, request)
+
+					Expect(res).Should(BeNil())
+					Expect(err).Should(HaveOccurred())
+				}
+			})
+
+			It("panics if request is nil", func() {
+
+				Expect(func() {
+
+					_, err := apiServer.UpdateClassroomV1(ctx, nil)
 					if err != nil {
 						Fail("error occured")
 					}
@@ -357,7 +569,7 @@ var _ = Describe("Api", func() {
 
 		When("parameters are not valid", func() {
 
-			It("returns error if classroom_id is 0", func() {
+			It("returns error if classroomId is 0", func() {
 
 				request := &grpcApi.RemoveClassroomV1Request{
 					ClassroomId: 0,

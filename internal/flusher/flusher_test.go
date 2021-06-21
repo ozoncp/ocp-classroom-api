@@ -7,6 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/ozoncp/ocp-classroom-api/internal/flusher"
 	"github.com/ozoncp/ocp-classroom-api/internal/mocks"
@@ -27,6 +28,9 @@ var _ = Describe("Flusher", func() {
 
 			ctx context.Context
 			fl  flusher.Flusher
+
+			tracer opentracing.Tracer
+			span   opentracing.Span
 		)
 
 		BeforeEach(func() {
@@ -42,10 +46,16 @@ var _ = Describe("Flusher", func() {
 			}
 
 			ctx = context.Background()
+
+			tracer = opentracing.GlobalTracer()
+			span = tracer.StartSpan("Flush test")
 		})
 
 		AfterEach(func() {
+
 			ctrl.Finish()
+
+			span.Finish()
 		})
 
 		When("parameters are not valid", func() {
@@ -55,7 +65,7 @@ var _ = Describe("Flusher", func() {
 				By("receiving wrong chunkSize")
 
 				fl = flusher.New(mockRepo, -1)
-				remainingClassrooms := fl.Flush(ctx, classrooms)
+				remainingClassrooms := fl.Flush(ctx, nil, classrooms)
 
 				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms))
 
@@ -64,7 +74,7 @@ var _ = Describe("Flusher", func() {
 				classrooms = nil
 
 				fl = flusher.New(mockRepo, chunkSize)
-				remainingClassrooms = fl.Flush(ctx, classrooms)
+				remainingClassrooms = fl.Flush(ctx, nil, classrooms)
 
 				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms))
 			})
@@ -79,32 +89,62 @@ var _ = Describe("Flusher", func() {
 
 			It("flushes successfully", func() {
 
-				mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Times(3).Return(nil)
+				for i := 0; i < 2; i++ {
 
-				remainingClassrooms := fl.Flush(ctx, classrooms)
+					var usedSpan opentracing.Span
+					if i == 0 {
+						usedSpan = nil
+					} else {
+						usedSpan = span
+					}
 
-				Expect(remainingClassrooms).Should(BeNil())
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Times(3).Return(uint64(0), nil)
+
+					remainingClassrooms := fl.Flush(ctx, usedSpan, classrooms)
+
+					Expect(remainingClassrooms).Should(BeNil())
+				}
 			})
 
 			It("can not flush fully", func() {
 
-				gomock.InOrder(
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(nil),
-					mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(errors.New("can not add classrooms")),
-				)
+				for i := 0; i < 2; i++ {
 
-				remainingClassrooms := fl.Flush(ctx, classrooms)
+					var usedSpan opentracing.Span
+					if i == 0 {
+						usedSpan = nil
+					} else {
+						usedSpan = span
+					}
 
-				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms[chunkSize:]))
+					gomock.InOrder(
+						mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Return(uint64(0), nil),
+						mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Return(uint64(0), errors.New("can not add classrooms")),
+					)
+
+					remainingClassrooms := fl.Flush(ctx, usedSpan, classrooms)
+
+					Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms[chunkSize:]))
+				}
 			})
 
 			It("can not flush anything", func() {
 
-				mockRepo.EXPECT().AddClassrooms(ctx, gomock.Any()).Return(errors.New("can not add classrooms"))
+				for i := 0; i < 2; i++ {
 
-				remainingClassrooms := fl.Flush(ctx, classrooms)
+					var usedSpan opentracing.Span
+					if i == 0 {
+						usedSpan = nil
+					} else {
+						usedSpan = span
+					}
 
-				Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms))
+					mockRepo.EXPECT().MultiAddClassroom(ctx, gomock.Any()).Return(uint64(0), errors.New("can not add classrooms"))
+
+					remainingClassrooms := fl.Flush(ctx, usedSpan, classrooms)
+
+					Expect(remainingClassrooms).Should(BeEquivalentTo(classrooms))
+				}
 			})
 		})
 	})

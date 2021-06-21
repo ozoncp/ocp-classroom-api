@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"database/sql"
+	"flag"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
@@ -13,95 +13,183 @@ import (
 	"github.com/ozoncp/ocp-classroom-api/internal/repo"
 )
 
-// login: postgres
-// password : postgres
-// port: 5432
-
-// user: aleksandr
-// password: ozon_course
+const logPrefix = "classroomRepo: "
 
 func main() {
 
-	const dbName = "ozon"
-	const address = "postgres://postgres:postgres@localhost:5432/" + dbName + "?sslmode=disable"
-	//const address = "user=postgres dbname=exampledb sslmode=verify-full password=postgres"
+	var repoArgs = repo.RepoArgs{}
+	repo.SetRepoArgsFromCommandLine(&repoArgs)
+
+	flag.Parse()
 
 	ctx := context.Background()
 
-	db, err := sql.Open("pgx", address)
+	classroomRepo, err := repo.GetConnectedRepo(ctx, &repoArgs)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to open postgres")
+		log.Fatal().Err(err).Msg(logPrefix + "failed to connect to repo")
 	}
-
-	defer db.Close()
-
-	if err := db.PingContext(ctx); err != nil {
-		log.Fatal().Err(err).Msg("Failed to ping postgres")
-	}
-
-	log.Debug().Msgf("Connected to DB %v", dbName)
-
-	classroomRepo := repo.New(db)
 
 	for {
 
-		var cmd string
-		fmt.Println("What to do? ('l' - list, 'a' - add, 'am' - add many, 'd' - describe, 'r' - remove):")
-		fmt.Scan(&cmd)
-
-		switch cmd {
+		switch getCommandFromUserInput() {
 
 		case "l":
-			classrooms, err := classroomRepo.ListClassrooms(ctx, 5, 0)
+
+			limit, offset := getLimitOffsetFromUserInput()
+
+			classrooms, err := classroomRepo.ListClassrooms(ctx, limit, offset)
 			if err != nil {
-				log.Error().Err(err).Msg("Failed to list classrooms")
+				log.Error().Err(err).Msg(logPrefix + "failed to list classrooms")
 			} else {
 
-				log.Debug().Msgf("Listed classrooms: %v", classrooms)
+				log.Debug().Msgf(logPrefix+"listed classrooms: %v", classrooms)
 			}
 
 		case "a":
-			var classroom = models.Classroom{TenantId: 2, CalendarId: 2}
+
+			classroom := *models.FromFmtScan()
+
 			id, err := classroomRepo.AddClassroom(ctx, classroom)
 			if err != nil {
-				log.Error().Err(err).Msg("Failed to add classrooms")
+				log.Error().Err(err).Msg(logPrefix + "failed to add classrooms")
 			} else {
 
-				log.Debug().Msgf("Added classroom, its id: %v", id)
+				log.Debug().Msgf(logPrefix+"added classroom, its id: %v", id)
 			}
 
-		case "am":
-			var classrooms = []models.Classroom{{TenantId: 3, CalendarId: 3}, {TenantId: 4, CalendarId: 4}}
-			err := classroomRepo.AddClassrooms(ctx, classrooms)
+		case "ma":
+
+			addedCount, err := classroomRepo.MultiAddClassroom(ctx, getClassroomsFromUserInput())
 			if err != nil {
-				log.Error().Err(err).Msg("Failed to add classrooms")
+				log.Error().Err(err).Msg(logPrefix + "failed to add classrooms")
 			} else {
 
-				log.Debug().Msgf("Added classrooms: %v", classrooms)
+				log.Debug().Msgf(logPrefix+"added classrooms count: %v", addedCount)
 			}
 
 		case "d":
 
-			var classroomId uint64 = 3
+			classroomId := getClassroomIdFromUserInput()
 
 			classroom, err := classroomRepo.DescribeClassroom(ctx, classroomId)
 			if err != nil {
-				log.Error().Err(err).Msgf("Failed to describe classroom with id: %v", classroomId)
+				log.Error().Err(err).Msgf(logPrefix+"failed to describe classroom with id: %v", classroomId)
 			} else {
 
-				log.Debug().Msgf("Described classroom: %v", classroom)
+				log.Debug().Msgf(logPrefix+"Described classroom: %v", classroom)
+			}
+
+		case "u":
+
+			classroom := *models.FromFmtScan()
+
+			found, err := classroomRepo.UpdateClassroom(ctx, classroom)
+			if err != nil {
+				log.Error().Err(err).Msgf(logPrefix+"failed to update classroom with id: %v", classroom.Id)
+			} else {
+
+				log.Debug().Msgf(logPrefix+"updated classroom with id: %v %v", classroom, found)
 			}
 
 		case "r":
-			var classroomId uint64 = 2
+
+			classroomId := getClassroomIdFromUserInput()
+
 			found, err := classroomRepo.RemoveClassroom(ctx, classroomId)
 			if err != nil {
-				log.Error().Err(err).Msgf("Failed to remove classroom with id: %v", classroomId)
+				log.Error().Err(err).Msgf(logPrefix+"failed to remove classroom with id: %v", classroomId)
 			} else {
 
-				log.Debug().Msgf("Removed classroom with id: %v %v", classroomId, found)
+				log.Debug().Msgf(logPrefix+"removed classroom with id: %v %v", classroomId, found)
 			}
 
+		case "x":
+
+			return
 		}
 	}
+}
+
+func getCommandFromUserInput() (cmd string) {
+
+	for {
+		fmt.Print("What to do? (",
+			"'l' - list,",
+			" 'a' - add,",
+			" 'ma' - multi add,",
+			" 'd' - describe,",
+			" 'u' - update,",
+			" 'r' - remove,",
+			" 'x' - exit): ")
+
+		if _, err := fmt.Scan(&cmd); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
+
+	return
+}
+
+func getLimitOffsetFromUserInput() (limit, offset uint64) {
+
+	for {
+		fmt.Print("Enter limit and offset: ")
+
+		if _, err := fmt.Scan(&limit, &offset); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
+
+	return
+}
+
+func getClassroomsFromUserInput() []models.Classroom {
+
+	var count int
+	for {
+		fmt.Print("Enter count: ")
+
+		if _, err := fmt.Scan(&count); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		if count < 1 {
+			fmt.Println("Count can not be less 1")
+			continue
+		}
+
+		break
+	}
+
+	var classrooms []models.Classroom
+	for i := 0; i < count; i++ {
+
+		classroom := *models.FromFmtScan()
+		classrooms = append(classrooms, classroom)
+	}
+
+	return classrooms
+}
+
+func getClassroomIdFromUserInput() (classroomId uint64) {
+
+	for {
+		fmt.Print("Enter classroomId: ")
+
+		if _, err := fmt.Scan(&classroomId); err != nil {
+			fmt.Println("Error occurred", err, ". Try again")
+			continue
+		}
+
+		break
+	}
+
+	return
 }

@@ -4,6 +4,7 @@ build: vendor-proto .generate .build
 PHONY: .generate
 .generate:
 		mkdir -p pkg/ocp-classroom-api
+		mkdir -p swagger
 		protoc -I vendor.protogen \
 				--go_out=pkg/ocp-classroom-api --go_opt=paths=import \
 				--go-grpc_out=pkg/ocp-classroom-api --go-grpc_opt=paths=import \
@@ -11,7 +12,7 @@ PHONY: .generate
 				--grpc-gateway_opt=logtostderr=true \
 				--grpc-gateway_opt=paths=import \
 				--validate_out lang=go:pkg/ocp-classroom-api \
-				--swagger_out=allow_merge=true,merge_file_name=api:. \
+				--swagger_out=allow_merge=true,merge_file_name=swagger/api:. \
 				api/ocp-classroom-api/ocp-classroom-api.proto
 		mv pkg/ocp-classroom-api/github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api/* pkg/ocp-classroom-api/
 		rm -rf pkg/ocp-classroom-api/github.com
@@ -19,7 +20,11 @@ PHONY: .generate
 
 PHONY: .build
 .build:
-		CGO_ENABLED=0 GOOS=windows go build -o bin/ocp-classroom-api cmd/ocp-classroom-api/main.go
+ifeq ($(OS), Windows_NT)
+	CGO_ENABLED=0 GOOS=windows go build -o bin/ocp-classroom-api.exe cmd/ocp-classroom-api/main.go
+else
+	CGO_ENABLED=0 GOOS=linux go build -o bin/ocp-classroom-api cmd/ocp-classroom-api/main.go
+endif
 
 PHONY: install
 install: build .install
