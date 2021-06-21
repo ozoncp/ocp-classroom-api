@@ -6,6 +6,8 @@ import (
 	grpcApi "github.com/ozoncp/ocp-classroom-api/pkg/ocp-classroom-api"
 )
 
+// TODO: add tests
+
 type Classroom struct {
 	Id uint64 `db:"id"`
 

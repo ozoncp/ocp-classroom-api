@@ -11,7 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// TODO: add logging here
+// TODO: add tests
 
 type LogProducer interface {
 	Send(evType ClassroomEventType, req, res interface{}, err error) error
