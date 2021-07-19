@@ -15,7 +15,7 @@ type Classroom struct {
 
 func (cr *Classroom) String() (str string) {
 
-	str = fmt.Sprintf("Classroom = { id: %v, tenantId: %v, calendarId: %v }",
+	str = fmt.Sprintf("Classroom = { Id: %v, TenantId: %v, CalendarId: %v }",
 		cr.Id, cr.TenantId, cr.CalendarId)
 
 	return

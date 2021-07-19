@@ -3,15 +3,12 @@ package producer
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"time"
 
 	"github.com/Shopify/sarama"
 
 	"github.com/rs/zerolog/log"
 )
-
-// TODO: add logging here
 
 type LogProducer interface {
 	Send(evType ClassroomEventType, req, res interface{}, err error) error
@@ -51,10 +48,6 @@ func New(ctx context.Context, broker string) (LogProducer, error) {
 }
 
 func (lp *logProducer) Send(evType ClassroomEventType, req, res interface{}, err error) error {
-
-	if lp == nil {
-		return errors.New("LogProducer is nil")
-	}
 
 	message := ClassroomEvent{
 		Type: evType,
